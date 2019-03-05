@@ -37,11 +37,13 @@ struct CmdSetConstantBuffer
 {
 	ID3D11Buffer* buffers[LU_MAX_BUFFERS];
 	uint32_t count;
+	uint32_t slot;
 };
 struct CmdSetSampler 
 {
 	ID3D11SamplerState* samplers[LU_MAX_SAMPLERS];
 	uint32_t count;
+	uint32_t slot;
 };
 struct CmdSetComputeShader 
 {
@@ -51,11 +53,13 @@ struct CmdSetTextures
 {
 	ID3D11ShaderResourceView* shaderResourceView[LU_MAX_TEXTURES];
 	uint32_t count;
+	uint32_t slot;
 };
 struct CmdSetComputeShaderUAV 
 {
 	ID3D11UnorderedAccessView* uavs[LU_MAX_UAVS];
 	uint32_t count;
+	uint32_t slot;
 };
 struct CmdDispatch 
 {
@@ -97,6 +101,7 @@ struct CmdSetVertexBuffers
 	uint32_t strides[LU_MAX_VERTEX_BUFFERS];
 	uint32_t offsets[LU_MAX_VERTEX_BUFFERS];
 	uint32_t count;
+	uint32_t slot;
 };
 struct CmdSetBlendState 
 {
@@ -208,7 +213,7 @@ void lu::commands::ClearRenderTarget(CommandList& cmds, RenderTarget& target, fl
 	cmd.clearColor[3] = clearColor[3];
 	cmds.addCommand(CmdId::ClearRenderTarget, cmd);
 }
-void lu::commands::SetComputeShaderConstantBuffer(CommandList& cmds, uint32_t bufferCount, Buffer* pBuffers)
+void lu::commands::SetComputeShaderConstantBuffer(CommandList& cmds, uint32_t slot, uint32_t bufferCount, Buffer* pBuffers)
 {
 	CmdSetConstantBuffer cmd;
 	if (bufferCount == 1)
@@ -225,9 +230,10 @@ void lu::commands::SetComputeShaderConstantBuffer(CommandList& cmds, uint32_t bu
 		}
 		cmd.count = bufferCount;
 	}
+	cmd.slot = slot;
 	cmds.addCommand(CmdId::SetComputeShaderConstantBuffer, cmd);
 }
-void lu::commands::SetComputeShaderSampler(CommandList& cmds, uint32_t samplerCount, SamplerState* pSamplers)
+void lu::commands::SetComputeShaderSampler(CommandList& cmds, uint32_t slot, uint32_t samplerCount, SamplerState* pSamplers)
 {
 	CmdSetSampler cmd;
 	if (samplerCount == 1)
@@ -244,6 +250,7 @@ void lu::commands::SetComputeShaderSampler(CommandList& cmds, uint32_t samplerCo
 		}
 		cmd.count = samplerCount;
 	}
+	cmd.slot = slot;
 	cmds.addCommand(CmdId::SetComputeShaderSampler, cmd);
 }
 void lu::commands::SetComputeShader(CommandList& cmds, ComputeShader* pShader)
@@ -255,7 +262,7 @@ void lu::commands::SetComputeShader(CommandList& cmds, ComputeShader* pShader)
 		cmd.pShader = NULL;
 	cmds.addCommand(CmdId::SetComputeShader, cmd);
 }
-void lu::commands::SetComputeShaderTextures(CommandList& cmds, uint32_t textureCount, Texture* pTextures)
+void lu::commands::SetComputeShaderTextures(CommandList& cmds, uint32_t slot, uint32_t textureCount, Texture* pTextures)
 {
 	CmdSetTextures cmd;
 	if (textureCount == 1 || pTextures == NULL)
@@ -275,9 +282,10 @@ void lu::commands::SetComputeShaderTextures(CommandList& cmds, uint32_t textureC
 		}
 		cmd.count = textureCount;
 	}
+	cmd.slot = slot;
 	cmds.addCommand(CmdId::SetComputeShaderTextures, cmd);
 }
-void lu::commands::SetComputeShaderUAV(CommandList& cmds, uint32_t uavCount, UnorderedAccessView* pUAVs)
+void lu::commands::SetComputeShaderUAV(CommandList& cmds, uint32_t slot, uint32_t uavCount, UnorderedAccessView* pUAVs)
 {
 	CmdSetComputeShaderUAV cmd;
 	if (uavCount == 1)
@@ -294,6 +302,7 @@ void lu::commands::SetComputeShaderUAV(CommandList& cmds, uint32_t uavCount, Uno
 		}
 		cmd.count = uavCount;
 	}
+	cmd.slot = slot;
 	cmds.addCommand(CmdId::SetComputeShaderUAV, cmd);
 }
 void lu::commands::Dispatch(CommandList& cmds, uint32_t x, uint32_t y, uint32_t z)
@@ -372,7 +381,7 @@ void lu::commands::SetIndexBuffer(CommandList& cmds, ResourceFormat format, Buff
 	cmd.pIndexBuffer = (ID3D11Buffer*)indexBuffer.buffer;
 	cmds.addCommand(CmdId::SetIndexBuffer, cmd);
 }
-void lu::commands::SetVertexBuffers(CommandList& cmds, uint32_t bufferCount, Buffer* pVertexBuffers, uint32_t* pStrides, uint32_t* pOffsets)
+void lu::commands::SetVertexBuffers(CommandList& cmds, uint32_t slot, uint32_t bufferCount, Buffer* pVertexBuffers, uint32_t* pStrides, uint32_t* pOffsets)
 {
 	CmdSetVertexBuffers cmd;
 	if (bufferCount == 1)
@@ -393,6 +402,7 @@ void lu::commands::SetVertexBuffers(CommandList& cmds, uint32_t bufferCount, Buf
 		}
 		cmd.count = bufferCount;
 	}
+	cmd.slot = slot;
 	cmds.addCommand(CmdId::SetVertexBuffers, cmd);
 }
 void lu::commands::SetBlendState(CommandList& cmds, BlendState& blendState, const float32_t blendFactor[4], uint32_t sampleMask)
@@ -437,7 +447,7 @@ void lu::commands::SetRenderTargets(CommandList& cmds, uint32_t rtCount, RenderT
 	
 	cmds.addCommand(CmdId::SetRenderTargets, cmd);
 }
-void lu::commands::SetPixelShaderConstantBuffers(CommandList& cmds, uint32_t bufferCount, Buffer* pBuffers)
+void lu::commands::SetPixelShaderConstantBuffers(CommandList& cmds, uint32_t slot, uint32_t bufferCount, Buffer* pBuffers)
 {
 	CmdSetConstantBuffer cmd;
 	if (bufferCount == 1)
@@ -454,9 +464,10 @@ void lu::commands::SetPixelShaderConstantBuffers(CommandList& cmds, uint32_t buf
 		}
 		cmd.count = bufferCount;
 	}
+	cmd.slot = slot;
 	cmds.addCommand(CmdId::SetPixelShaderConstantBuffers, cmd);
 }
-void lu::commands::SetPixelShaderSamplers(CommandList& cmds, uint32_t samplerCount, SamplerState* pSamplers)
+void lu::commands::SetPixelShaderSamplers(CommandList& cmds, uint32_t slot, uint32_t samplerCount, SamplerState* pSamplers)
 {
 	CmdSetSampler cmd;
 	if (samplerCount == 1)
@@ -473,6 +484,7 @@ void lu::commands::SetPixelShaderSamplers(CommandList& cmds, uint32_t samplerCou
 		}
 		cmd.count = samplerCount;
 	}
+	cmd.slot = slot;
 	cmds.addCommand(CmdId::SetPixelShaderSamplers, cmd);
 }
 void lu::commands::SetPixelShader(CommandList& cmds, PixelShader* pShader)
@@ -484,7 +496,7 @@ void lu::commands::SetPixelShader(CommandList& cmds, PixelShader* pShader)
 		cmd.pShader = NULL;
 	cmds.addCommand(CmdId::SetPixelShader, cmd);
 }
-void lu::commands::SetPixelShaderTextures(CommandList& cmds, uint32_t textureCount, Texture* pTextures)
+void lu::commands::SetPixelShaderTextures(CommandList& cmds, uint32_t slot, uint32_t textureCount, Texture* pTextures)
 {
 	CmdSetTextures cmd;
 	if (textureCount == 1 || pTextures == NULL)
@@ -504,6 +516,7 @@ void lu::commands::SetPixelShaderTextures(CommandList& cmds, uint32_t textureCou
 		}
 		cmd.count = textureCount;
 	}
+	cmd.slot = slot;
 	cmds.addCommand(CmdId::SetPixelShaderTextures, cmd);
 }
 void lu::commands::SetRasterizerState(CommandList& cmds, RasterizerState& rasterizerState)
@@ -574,7 +587,7 @@ void lu::commands::SetScissors(CommandList& cmds, uint32_t scissorCount, Scissor
 	}
 	cmds.addCommand(CmdId::SetScissors, cmd);
 }
-void lu::commands::SetVertexShaderConstantBuffers(CommandList& cmds, uint32_t bufferCount, Buffer* pBuffers)
+void lu::commands::SetVertexShaderConstantBuffers(CommandList& cmds, uint32_t slot, uint32_t bufferCount, Buffer* pBuffers)
 {
 	CmdSetConstantBuffer cmd;
 	if (bufferCount == 1)
@@ -591,9 +604,10 @@ void lu::commands::SetVertexShaderConstantBuffers(CommandList& cmds, uint32_t bu
 		}
 		cmd.count = bufferCount;
 	}
+	cmd.slot = slot;
 	cmds.addCommand(CmdId::SetVertexShaderConstantBuffer, cmd);
 }
-void lu::commands::SetVertexShaderSamplers(CommandList& cmds, uint32_t samplerCount, SamplerState* pSamplers)
+void lu::commands::SetVertexShaderSamplers(CommandList& cmds, uint32_t slot, uint32_t samplerCount, SamplerState* pSamplers)
 {
 	CmdSetSampler cmd;
 	if (samplerCount == 1)
@@ -610,6 +624,7 @@ void lu::commands::SetVertexShaderSamplers(CommandList& cmds, uint32_t samplerCo
 		}
 		cmd.count = samplerCount;
 	}
+	cmd.slot = slot;
 	cmds.addCommand(CmdId::SetVertexShaderSamplers, cmd);
 }
 void lu::commands::SetVertexShader(CommandList& cmds, VertexShader* pShader)
@@ -627,7 +642,7 @@ void lu::commands::SetVertexShader(CommandList& cmds, VertexShader* pShader)
 	}
 	cmds.addCommand(CmdId::SetVertexShader, cmd);
 }
-void lu::commands::SetVertexShaderTextures(CommandList& cmds, uint32_t textureCount, Texture* pTextures)
+void lu::commands::SetVertexShaderTextures(CommandList& cmds, uint32_t slot, uint32_t textureCount, Texture* pTextures)
 {
 	CmdSetTextures cmd;
 	if (textureCount == 1 || pTextures == NULL)
@@ -647,9 +662,10 @@ void lu::commands::SetVertexShaderTextures(CommandList& cmds, uint32_t textureCo
 		}
 		cmd.count = textureCount;
 	}
+	cmd.slot = slot;
 	cmds.addCommand(CmdId::SetVertexShaderTextures, cmd);
 }
-void lu::commands::SetGeometryShaderConstantBuffers(CommandList& cmds, uint32_t bufferCount, Buffer* pBuffers)
+void lu::commands::SetGeometryShaderConstantBuffers(CommandList& cmds, uint32_t slot, uint32_t bufferCount, Buffer* pBuffers)
 {
 	CmdSetConstantBuffer cmd;
 	if (bufferCount == 1)
@@ -666,9 +682,10 @@ void lu::commands::SetGeometryShaderConstantBuffers(CommandList& cmds, uint32_t 
 		}
 		cmd.count = bufferCount;
 	}
+	cmd.slot = slot;
 	cmds.addCommand(CmdId::SetGeometryShaderConstantBuffer, cmd);
 }
-void lu::commands::SetGeometryShaderSamplers(CommandList& cmds, uint32_t samplerCount, SamplerState* pSamplers)
+void lu::commands::SetGeometryShaderSamplers(CommandList& cmds, uint32_t slot, uint32_t samplerCount, SamplerState* pSamplers)
 {
 	CmdSetSampler cmd;
 	if (samplerCount == 1)
@@ -685,6 +702,7 @@ void lu::commands::SetGeometryShaderSamplers(CommandList& cmds, uint32_t sampler
 		}
 		cmd.count = samplerCount;
 	}
+	cmd.slot = slot;
 	cmds.addCommand(CmdId::SetGeometryShaderSamplers, cmd);
 }
 void lu::commands::SetGeometryShader(CommandList& cmds, GeometryShader* pShader)
@@ -696,7 +714,7 @@ void lu::commands::SetGeometryShader(CommandList& cmds, GeometryShader* pShader)
 		cmd.pShader = NULL;
 	cmds.addCommand(CmdId::SetGeometryShader, cmd);
 }
-void lu::commands::SetGeometryShaderTextures(CommandList& cmds, uint32_t textureCount, Texture* pTextures)
+void lu::commands::SetGeometryShaderTextures(CommandList& cmds, uint32_t slot, uint32_t textureCount, Texture* pTextures)
 {
 	CmdSetTextures cmd;
 	if (textureCount == 1 || pTextures == NULL)
@@ -716,6 +734,7 @@ void lu::commands::SetGeometryShaderTextures(CommandList& cmds, uint32_t texture
 		}
 		cmd.count = textureCount;
 	}
+	cmd.slot = slot;
 	cmds.addCommand(CmdId::SetGeometryShaderTextures, cmd);
 }
 void lu::commands::ExecuteCommandList(RendererContext& context, CommandList& cmds)
@@ -741,13 +760,13 @@ void lu::commands::ExecuteCommandList(RendererContext& context, CommandList& cmd
 		case lu::CmdId::SetComputeShaderConstantBuffer:
 		{
 			const CmdSetConstantBuffer* pCmd = cmds.consumeCommand<CmdSetConstantBuffer>();
-			pC->CSSetConstantBuffers(0, pCmd->count, pCmd->buffers);
+			pC->CSSetConstantBuffers(pCmd->slot, pCmd->count, pCmd->buffers);
 			break;
 		}
 		case lu::CmdId::SetComputeShaderSampler:
 		{
 			const CmdSetSampler* pCmd = cmds.consumeCommand<CmdSetSampler>();
-			pC->CSSetSamplers(0, pCmd->count, pCmd->samplers);
+			pC->CSSetSamplers(pCmd->slot, pCmd->count, pCmd->samplers);
 			break;
 		}
 		case lu::CmdId::SetComputeShader:
@@ -759,13 +778,13 @@ void lu::commands::ExecuteCommandList(RendererContext& context, CommandList& cmd
 		case lu::CmdId::SetComputeShaderTextures:
 		{
 			const CmdSetTextures* pCmd = cmds.consumeCommand<CmdSetTextures>();
-			pC->CSSetShaderResources(0, pCmd->count, pCmd->shaderResourceView);
+			pC->CSSetShaderResources(pCmd->slot, pCmd->count, pCmd->shaderResourceView);
 			break;
 		}
 		case lu::CmdId::SetComputeShaderUAV:
 		{
 			const CmdSetComputeShaderUAV* pCmd = cmds.consumeCommand<CmdSetComputeShaderUAV>();
-			pC->CSSetUnorderedAccessViews(0, pCmd->count, pCmd->uavs, NULL);
+			pC->CSSetUnorderedAccessViews(pCmd->slot, pCmd->count, pCmd->uavs, NULL);
 			break;
 		}
 		case lu::CmdId::Dispatch:
@@ -831,7 +850,7 @@ void lu::commands::ExecuteCommandList(RendererContext& context, CommandList& cmd
 		case lu::CmdId::SetVertexBuffers:
 		{
 			const CmdSetVertexBuffers* pCmd = cmds.consumeCommand<CmdSetVertexBuffers>();
-			pC->IASetVertexBuffers(0, pCmd->count, pCmd->vertexBuffers, pCmd->strides, pCmd->offsets);
+			pC->IASetVertexBuffers(pCmd->slot, pCmd->count, pCmd->vertexBuffers, pCmd->strides, pCmd->offsets);
 			break;
 		}
 		case lu::CmdId::SetBlendState:
@@ -861,7 +880,7 @@ void lu::commands::ExecuteCommandList(RendererContext& context, CommandList& cmd
 		case lu::CmdId::SetPixelShaderSamplers:
 		{
 			const CmdSetSampler* pCmd = cmds.consumeCommand<CmdSetSampler>();
-			pC->PSSetSamplers(0, pCmd->count, pCmd->samplers);
+			pC->PSSetSamplers(pCmd->slot, pCmd->count, pCmd->samplers);
 			break;
 		}
 		case lu::CmdId::SetPixelShader:
@@ -873,7 +892,7 @@ void lu::commands::ExecuteCommandList(RendererContext& context, CommandList& cmd
 		case lu::CmdId::SetPixelShaderTextures:
 		{
 			const CmdSetTextures* pCmd = cmds.consumeCommand<CmdSetTextures>();
-			pC->PSSetShaderResources(0, pCmd->count, pCmd->shaderResourceView);
+			pC->PSSetShaderResources(pCmd->slot, pCmd->count, pCmd->shaderResourceView);
 			break;
 		}
 		case lu::CmdId::SetRasterizerState:
@@ -897,13 +916,13 @@ void lu::commands::ExecuteCommandList(RendererContext& context, CommandList& cmd
 		case lu::CmdId::SetVertexShaderConstantBuffer:
 		{
 			const CmdSetConstantBuffer* pCmd = cmds.consumeCommand<CmdSetConstantBuffer>();
-			pC->VSSetConstantBuffers(0, pCmd->count, pCmd->buffers);
+			pC->VSSetConstantBuffers(pCmd->slot, pCmd->count, pCmd->buffers);
 			break;
 		}
 		case lu::CmdId::SetVertexShaderSamplers:
 		{
 			const CmdSetSampler* pCmd = cmds.consumeCommand<CmdSetSampler>();
-			pC->VSSetSamplers(0, pCmd->count, pCmd->samplers);
+			pC->VSSetSamplers(pCmd->slot, pCmd->count, pCmd->samplers);
 			break;
 		}
 		case lu::CmdId::SetVertexShader:
@@ -916,19 +935,19 @@ void lu::commands::ExecuteCommandList(RendererContext& context, CommandList& cmd
 		case lu::CmdId::SetVertexShaderTextures:
 		{
 			const CmdSetTextures* pCmd = cmds.consumeCommand<CmdSetTextures>();
-			pC->VSSetShaderResources(0, pCmd->count, pCmd->shaderResourceView);
+			pC->VSSetShaderResources(pCmd->slot, pCmd->count, pCmd->shaderResourceView);
 			break;
 		}
 		case lu::CmdId::SetGeometryShaderConstantBuffer:
 		{
 			const CmdSetConstantBuffer* pCmd = cmds.consumeCommand<CmdSetConstantBuffer>();
-			pC->GSSetConstantBuffers(0, pCmd->count, pCmd->buffers);
+			pC->GSSetConstantBuffers(pCmd->slot, pCmd->count, pCmd->buffers);
 			break;
 		}
 		case lu::CmdId::SetGeometryShaderSamplers:
 		{
 			const CmdSetSampler* pCmd = cmds.consumeCommand<CmdSetSampler>();
-			pC->GSSetSamplers(0, pCmd->count, pCmd->samplers);
+			pC->GSSetSamplers(pCmd->slot, pCmd->count, pCmd->samplers);
 			break;
 		}
 		case lu::CmdId::SetGeometryShader:
@@ -940,7 +959,7 @@ void lu::commands::ExecuteCommandList(RendererContext& context, CommandList& cmd
 		case lu::CmdId::SetGeometryShaderTextures:
 		{
 			const CmdSetTextures* pCmd = cmds.consumeCommand<CmdSetTextures>();
-			pC->GSSetShaderResources(0, pCmd->count, pCmd->shaderResourceView);
+			pC->GSSetShaderResources(pCmd->slot, pCmd->count, pCmd->shaderResourceView);
 			break;
 		}
 		default:

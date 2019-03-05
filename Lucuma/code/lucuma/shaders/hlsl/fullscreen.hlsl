@@ -1,4 +1,4 @@
-cbuffer ConstantBuffer : register(b0)
+cbuffer ConstantBuffer : register(b1)
 {
 	float4 resolution;
 };
@@ -25,7 +25,9 @@ VertexOutput mainVS(VertexInput input)
 	return output;
 }
 
-Texture2D mainTexture;
+Texture2D mainTexture : register(t0);
+Texture3D texture0 : register(t1);
+
 SamplerState mainSampler;
 
 float map(float3 p)
@@ -36,32 +38,6 @@ float map(float3 p)
 float4 mainPS(VertexOutput input) : SV_TARGET
 {
 	float4 texColor = mainTexture.Sample(mainSampler, input.texCoord);
-
-	float3 color = float3(0.0, 0.0, 0.0);
-	float2 uv = (input.texCoord -0.5) * float2(1.33, 1.0);
-	float3 ro = float3(0.0, 0.0, -2.0);
-	float3 rd = normalize(float3(uv, 1.0));
-	float t = 0.0;
-
-
-	for (int i = 0; i < 200; ++i)
-	{
-		float3 p = ro + rd * t;
-		float d = map(p);
-		if (d < 0.001)
-		{
-			float2 e = float2(0.0, 0.001);
-			float3 n = normalize(
-				d - float3(map(p - e.yxx),
-				map(p - e.xyx),
-				map(p - e.xxy))
-			);
-			color = n;
-			break;
-		}
-		t += d;
-		if (t > 10.0) break;
-	}
-
-	return texColor + float4(color, 0.0);// float4(input.pixelPos, 0.0, 1.0);
+	float4 tex2Color = texture0.Sample(mainSampler, float3(input.texCoord, abs(sin(resolution.z))));
+	return texColor + tex2Color;// float4(input.pixelPos, 0.0, 1.0);
 }

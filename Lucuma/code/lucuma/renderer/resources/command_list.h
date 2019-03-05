@@ -123,11 +123,11 @@ namespace lu
 
 		void ClearDepthStencilTarget(CommandList& cmds, DepthStencilTarget& target, uint32_t clearFlag, float32_t clearDepth, uint8_t clearStencil);
 		void ClearRenderTarget(CommandList& cmds, RenderTarget& target, float32_t clearColor[4]);
-		void SetComputeShaderConstantBuffer(CommandList& cmds, uint32_t bufferCount, Buffer* pBuffers);
-		void SetComputeShaderSampler(CommandList& cmds, uint32_t samplerCount, SamplerState* pSamplers);
+		void SetComputeShaderConstantBuffer(CommandList& cmds, uint32_t slot, uint32_t bufferCount, Buffer* pBuffers);
+		void SetComputeShaderSampler(CommandList& cmds, uint32_t slot, uint32_t samplerCount, SamplerState* pSamplers);
 		void SetComputeShader(CommandList& cmds, ComputeShader* pShader);
-		void SetComputeShaderTextures(CommandList& cmds, uint32_t textureCount, Texture* pTextures);
-		void SetComputeShaderUAV(CommandList& cmds, uint32_t uavCount, UnorderedAccessView* pUAVs);
+		void SetComputeShaderTextures(CommandList& cmds, uint32_t slot, uint32_t textureCount, Texture* pTextures);
+		void SetComputeShaderUAV(CommandList& cmds, uint32_t slot, uint32_t uavCount, UnorderedAccessView* pUAVs);
 		void Dispatch(CommandList& cmds, uint32_t x, uint32_t y, uint32_t z);
 		void DispatchIndirect(CommandList& cmds, Buffer& bufferForArgs, uint32_t byteAlignmentForArgs);
 		void Draw(CommandList& cmds, uint32_t vertexCount, uint32_t startVertexLocation);
@@ -138,25 +138,25 @@ namespace lu
 		void DrawInstancedIndirect(CommandList& cmds, Buffer& bufferForArgs, uint32_t byteAlignmentForArgs);
 		void SetPrimitiveTopology(CommandList& cmds, PrimitiveTopology topology);
 		void SetIndexBuffer(CommandList& cmds, ResourceFormat format, Buffer& indexBuffer);
-		void SetVertexBuffers(CommandList& cmds, uint32_t bufferCount, Buffer* pVertexBuffers, uint32_t* pStrides, uint32_t* pOffsets);
+		void SetVertexBuffers(CommandList& cmds, uint32_t slot, uint32_t bufferCount, Buffer* pVertexBuffers, uint32_t* pStrides, uint32_t* pOffsets);
 		void SetBlendState(CommandList& cmds, BlendState& blendState, const float32_t blendFactor[4], uint32_t sampleMask);
 		void SetDepthStencilState(CommandList& cmds, DepthStencilState& depthStencilState, uint32_t stencilRef);
 		void SetRenderTargets(CommandList& cmds, uint32_t rtCount, RenderTarget* pRenderTargets, DepthStencilTarget* pDepthStencilTarget);
-		void SetPixelShaderConstantBuffers(CommandList& cmds, uint32_t bufferCount, Buffer* pBuffers);
-		void SetPixelShaderSamplers(CommandList& cmds, uint32_t samplerCount, SamplerState* pSamplers);
+		void SetPixelShaderConstantBuffers(CommandList& cmds, uint32_t slot, uint32_t bufferCount, Buffer* pBuffers);
+		void SetPixelShaderSamplers(CommandList& cmds, uint32_t slot, uint32_t samplerCount, SamplerState* pSamplers);
 		void SetPixelShader(CommandList& cmds, PixelShader* pShader);
-		void SetPixelShaderTextures(CommandList& cmds, uint32_t textureCount, Texture* pTextures);
+		void SetPixelShaderTextures(CommandList& cmds, uint32_t slot, uint32_t textureCount, Texture* pTextures);
 		void SetRasterizerState(CommandList& cmds, RasterizerState& rasterizerState);
 		void SetViewports(CommandList& cmds, uint32_t viewportCount, Viewport* pViewports);
 		void SetScissors(CommandList& cmds, uint32_t scissorCount, Scissor* pScissors);
-		void SetVertexShaderConstantBuffers(CommandList& cmds, uint32_t bufferCount, Buffer* pBuffers);
-		void SetVertexShaderSamplers(CommandList& cmds, uint32_t samplerCount, SamplerState* pSamplers);
+		void SetVertexShaderConstantBuffers(CommandList& cmds, uint32_t slot, uint32_t bufferCount, Buffer* pBuffers);
+		void SetVertexShaderSamplers(CommandList& cmds, uint32_t slot, uint32_t samplerCount, SamplerState* pSamplers);
 		void SetVertexShader(CommandList& cmds, VertexShader* pShader);
-		void SetVertexShaderTextures(CommandList& cmds, uint32_t textureCount, Texture* pTextures);
-		void SetGeometryShaderConstantBuffers(CommandList& cmds, uint32_t bufferCount, Buffer* pBuffers);
-		void SetGeometryShaderSamplers(CommandList& cmds, uint32_t samplerCount, SamplerState* pSamplers);
+		void SetVertexShaderTextures(CommandList& cmds, uint32_t slot, uint32_t textureCount, Texture* pTextures);
+		void SetGeometryShaderConstantBuffers(CommandList& cmds, uint32_t slot, uint32_t bufferCount, Buffer* pBuffers);
+		void SetGeometryShaderSamplers(CommandList& cmds, uint32_t slot, uint32_t samplerCount, SamplerState* pSamplers);
 		void SetGeometryShader(CommandList& cmds, GeometryShader* pShader);
-		void SetGeometryShaderTextures(CommandList& cmds, uint32_t textureCount, Texture* pTextures);
+		void SetGeometryShaderTextures(CommandList& cmds, uint32_t slot, uint32_t textureCount, Texture* pTextures);
 
 		void ExecuteCommandList(RendererContext& context, CommandList& cmds);
 	}

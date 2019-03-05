@@ -192,7 +192,7 @@ bool lu::resources::CreateTexture3D(const RendererDevice& device, ResourceFormat
 		D3D11_SUBRESOURCE_DATA dataDesc = {};
 		dataDesc.pSysMem = pData;
 		dataDesc.SysMemPitch = xSize * pixelByteSize;
-		dataDesc.SysMemSlicePitch = xSize * ySize * zSize * pixelByteSize;
+		dataDesc.SysMemSlicePitch = xSize * ySize * pixelByteSize;
 		HRESULT result = pDevice->CreateTexture3D(&textureDesc, &dataDesc, &pTexture);
 		if (result != S_OK)
 		{

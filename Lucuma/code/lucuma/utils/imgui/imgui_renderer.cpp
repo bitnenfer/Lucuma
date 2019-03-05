@@ -90,7 +90,7 @@ void lu::ImGuiRenderPass::commit(CommandList& cmds)
 	commands::SetPixelShader(cmds, &pixelShader);
 	commands::SetGeometryShader(cmds, NULL);
 	commands::SetRasterizerState(cmds, rasterizerState);
-	commands::SetPixelShaderSamplers(cmds, 1, &samplerState);
+	commands::SetPixelShaderSamplers(cmds, 0, 1, &samplerState);
 	commands::SetDepthStencilState(cmds, depthStencilState, 0);
 	commands::SetRenderTargets(cmds, 1, pRenderTarget, NULL);
 }
@@ -219,9 +219,9 @@ void lu::ImGuiRenderer::draw(CommandList& cmds, RendererDevice& device, Renderer
 	pipeline.commit(cmds);
 
 	commands::SetViewports(cmds, 1, &viewport);
-	commands::SetVertexBuffers(cmds, 1, &vertexBuffer, &strides, &offsets);
+	commands::SetVertexBuffers(cmds, 0, 1, &vertexBuffer, &strides, &offsets);
 	commands::SetIndexBuffer(cmds, ResourceFormat::FORMAT_R16_UINT, indexBuffer);
-	commands::SetVertexShaderConstantBuffers(cmds, 1, &constantBuffer);
+	commands::SetVertexShaderConstantBuffers(cmds, 0, 1, &constantBuffer);
 	commands::SetPrimitiveTopology(cmds, PrimitiveTopology::TRIANGLE_LIST);
 
 	uint32_t indexOffset = 0;
@@ -244,7 +244,7 @@ void lu::ImGuiRenderer::draw(CommandList& cmds, RendererDevice& device, Renderer
 				Texture* pTexture = (Texture*)pCmd->TextureId;
 
 				commands::SetScissors(cmds, 1, &scissor);
-				commands::SetPixelShaderTextures(cmds, 1, pTexture);
+				commands::SetPixelShaderTextures(cmds, 0, 1, pTexture);
 				commands::DrawIndexed(cmds, pCmd->ElemCount, indexOffset, vertexOffset);
 			}
 			indexOffset += pCmd->ElemCount;

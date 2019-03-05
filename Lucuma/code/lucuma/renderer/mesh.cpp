@@ -30,7 +30,7 @@ void lu::mesh::DrawMesh(CommandList& cmds, Mesh& mesh)
 {
 	uint32_t strides = sizeof(MeshVertex);
 	uint32_t offsets = 0;
-	commands::SetVertexBuffers(cmds, 1, &mesh.vertexBuffer, &strides, &offsets);
+	commands::SetVertexBuffers(cmds, 0, 1, &mesh.vertexBuffer, &strides, &offsets);
 	if (mesh.indexCount > 0)
 	{
 		commands::SetIndexBuffer(cmds, ResourceFormat::FORMAT_R16_UINT, mesh.indexBuffer);

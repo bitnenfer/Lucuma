@@ -24,6 +24,7 @@ void demo2()
 	lu::SamplerState fullscreenSS;
 	lu::DepthStencilState fullscreenDS;
 	lu::Vec4 fullscreenCBData = { 640, 480, 0, 0 };
+	lu::Texture3D texture0;
 	struct Vertex {
 		float32_t x, y;
 		float32_t u, v;
@@ -60,10 +61,37 @@ void demo2()
 	LU_ASSERT(lu::resources::CreateBuffer(device, sizeof(fullscreenVertices), lu::BufferUsage::USAGE_IMMUTABLE, lu::BIND_VERTEX_BUFFER, lu::CPU_ACCESS_NONE, lu::RESOURCE_NONE, 0, fullscreenVertices, fullscreenVB));
 	fullscreenCBData.x = (float32_t)window.width;
 	fullscreenCBData.y = (float32_t)window.height;
+	fullscreenCBData.z = 0.5f;
 	LU_ASSERT(lu::resources::CreateBuffer(device, sizeof(fullscreenCBData), lu::BufferUsage::USAGE_DYNAMIC, lu::BIND_CONSTANT_BUFFER, lu::CPU_ACCESS_WRITE, lu::RESOURCE_NONE, 0, &fullscreenCBData, fullscreenCB));
 	LU_ASSERT(lu::states::CreateSamplerState(device, lu::SamplerFilterType::POINT, lu::TextureAddressMode::CLAMP, fullscreenSS));
 	LU_ASSERT(lu::states::CreateDepthStencilState(device, lu::DepthState::GetDefault(false), lu::StencilState::GetDefault(false), lu::DepthStencilOp::GetDefault(), lu::DepthStencilOp::GetDefault(), fullscreenDS));
 
+	{
+		const uint32_t size = 256;
+		byte_t* pixels = (byte_t*)pageAllocator.allocate(size * size * size * 4);
+		
+		for (uint32_t z = 0; z < size; z++)
+		{
+			for (uint32_t y = 0; y < size; y++)
+			{
+				for (uint32_t x = 0; x < size; x++)
+				{
+					uint32_t index = x + y * size + z * size * size;
+					index *= 4;
+
+					pixels[index + 0] = x;
+					pixels[index + 1] = y;
+					pixels[index + 2] = z;
+					pixels[index + 3] = 0xFF;
+				}
+			}
+		}
+
+		LU_ASSERT(lu::resources::CreateTexture3D(device, lu::ResourceFormat::FORMAT_R8G8B8A8_UNORM, pixels, size, size, size, lu::SHADER_BINDING, texture0));
+		pageAllocator.deallocate(pixels);
+	}
+
+	float32_t time = 0.0f;
 	bool run = true;
 
 	while (run)
@@ -78,11 +106,20 @@ void demo2()
 			LU_ASSERT(lu::resources::CreateRenderTarget2D(device, imguiRenderTexture, imguiRenderTarget));
 			fullscreenCBData.x = (float32_t)window.width;
 			fullscreenCBData.y = (float32_t)window.height;
+			fullscreenCBData.z = time;
 			void* pMappedBuffer = lu::resources::MapBuffer(context, fullscreenCB, lu::MapType::MAP_WRITE_DISCARD);
 			memcpy(pMappedBuffer, &fullscreenCBData, sizeof(fullscreenCBData));
 			lu::resources::UnmapBuffer(context, fullscreenCB);
 		}
-		
+
+		fullscreenCBData.x = (float32_t)window.width;
+		fullscreenCBData.y = (float32_t)window.height;
+		fullscreenCBData.z = time;
+		void* pMappedBuffer = lu::resources::MapBuffer(context, fullscreenCB, lu::MapType::MAP_WRITE_DISCARD);
+		memcpy(pMappedBuffer, &fullscreenCBData, sizeof(fullscreenCBData));
+		lu::resources::UnmapBuffer(context, fullscreenCB);
+
+
 		if (lu::input::ShouldQuit(window) ||
 			lu::input::IsKeyDown(window, lu::KeyCode::KEY_ESC))
 		{
@@ -96,7 +133,7 @@ void demo2()
 		float32_t clearColor[] = { 0,0,0,1 };
 		lu::commands::ClearRenderTarget(commandList, mainRenderTarget, clearColor);
 		lu::commands::ClearRenderTarget(commandList, imguiRenderTarget, clearColor);
-		lu::commands::SetPixelShaderTextures(commandList, 1, NULL);
+		lu::commands::SetPixelShaderTextures(commandList, 0, 1, NULL);
 
 		imguiRenderer.draw(commandList, device, context);
 
@@ -119,12 +156,13 @@ void demo2()
 			lu::commands::SetVertexShader(commandList, &fullscreenVS);
 			lu::commands::SetPixelShader(commandList, &fullscreenPS);
 			lu::commands::SetRenderTargets(commandList, 1, &mainRenderTarget, NULL);
-			lu::commands::SetPixelShaderTextures(commandList, 1, &imguiRenderTexture);
-			lu::commands::SetPixelShaderSamplers(commandList, 1, &fullscreenSS);
-			lu::commands::SetPixelShaderConstantBuffers(commandList, 1, &fullscreenCB);
+			lu::commands::SetPixelShaderTextures(commandList, 0, 1, &imguiRenderTexture);
+			lu::commands::SetPixelShaderTextures(commandList, 1, 1, &texture0);
+			lu::commands::SetPixelShaderSamplers(commandList, 0, 1, &fullscreenSS);
+			lu::commands::SetPixelShaderConstantBuffers(commandList, 1, 1, &fullscreenCB);
 			uint32_t strides = sizeof(Vertex);
 			uint32_t offset = 0;
-			lu::commands::SetVertexBuffers(commandList, 1, &fullscreenVB, &strides, &offset);
+			lu::commands::SetVertexBuffers(commandList, 0, 1, &fullscreenVB, &strides, &offset);
 			lu::commands::SetPrimitiveTopology(commandList, lu::PrimitiveTopology::TRIANGLE_LIST);
 			lu::commands::SetViewports(commandList, 1, &viewport);
 			lu::commands::SetScissors(commandList, 1, &scissor);
@@ -136,8 +174,10 @@ void demo2()
 		lu::commands::ExecuteCommandList(context, commandList);
 		lu::renderer::Present(window);
 		commandList.reset();
+		time += 0.01f;
 	}
 
+	lu::resources::DestroyTexture3D(device, texture0);
 	lu::states::DestroyDepthStencilState(device, fullscreenDS);
 	lu::states::DestroySamplerState(device, fullscreenSS);
 	lu::resources::DestroyVertexShader(device, fullscreenVS);
