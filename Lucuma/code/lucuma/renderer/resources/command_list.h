@@ -7,6 +7,7 @@
 #include "shader.h"
 #include "texture.h"
 #include "unordered_access_view.h"
+#include "shader_resource_view.h"
 
 #include "../states/blend_state.h"
 #include "../states/depth_stencil_state.h"
@@ -25,7 +26,7 @@ namespace lu
 		SetComputeShaderConstantBuffer,
 		SetComputeShaderSampler,
 		SetComputeShader,
-		SetComputeShaderTextures,
+		SetComputeShaderResourceViews,
 		SetComputeShaderUAV,
 		Dispatch,
 		DispatchIndirect,
@@ -44,18 +45,18 @@ namespace lu
 		SetPixelShaderConstantBuffers,
 		SetPixelShaderSamplers,
 		SetPixelShader,
-		SetPixelShaderTextures,
+		SetPixelShaderResourceViews,
 		SetRasterizerState,
 		SetViewports,
 		SetScissors,
 		SetVertexShaderConstantBuffer,
 		SetVertexShaderSamplers,
 		SetVertexShader,
-		SetVertexShaderTextures,
+		SetVertexShaderResourceViews,
 		SetGeometryShaderConstantBuffer,
 		SetGeometryShaderSamplers,
 		SetGeometryShader,
-		SetGeometryShaderTextures
+		SetGeometryShaderResourceViews
 	};
 
 	struct CommandList 
@@ -122,11 +123,11 @@ namespace lu
 		void DestroyCommandList(IAllocator& allocator, CommandList& commandList);
 
 		void ClearDepthStencilTarget(CommandList& cmds, DepthStencilTarget& target, uint32_t clearFlag, float32_t clearDepth, uint8_t clearStencil);
-		void ClearRenderTarget(CommandList& cmds, RenderTarget& target, float32_t clearColor[4]);
+		void ClearRenderTarget(CommandList& cmds, RenderTarget& target, const float32_t clearColor[4]);
 		void SetComputeShaderConstantBuffer(CommandList& cmds, uint32_t slot, uint32_t bufferCount, Buffer* pBuffers);
 		void SetComputeShaderSampler(CommandList& cmds, uint32_t slot, uint32_t samplerCount, SamplerState* pSamplers);
 		void SetComputeShader(CommandList& cmds, ComputeShader* pShader);
-		void SetComputeShaderTextures(CommandList& cmds, uint32_t slot, uint32_t textureCount, Texture* pTextures);
+		void SetComputeShaderResourceViews(CommandList& cmds, uint32_t slot, uint32_t textureCount, ShaderResourceView* pShaderResourceView);
 		void SetComputeShaderUAV(CommandList& cmds, uint32_t slot, uint32_t uavCount, UnorderedAccessView* pUAVs);
 		void Dispatch(CommandList& cmds, uint32_t x, uint32_t y, uint32_t z);
 		void DispatchIndirect(CommandList& cmds, Buffer& bufferForArgs, uint32_t byteAlignmentForArgs);
@@ -145,18 +146,18 @@ namespace lu
 		void SetPixelShaderConstantBuffers(CommandList& cmds, uint32_t slot, uint32_t bufferCount, Buffer* pBuffers);
 		void SetPixelShaderSamplers(CommandList& cmds, uint32_t slot, uint32_t samplerCount, SamplerState* pSamplers);
 		void SetPixelShader(CommandList& cmds, PixelShader* pShader);
-		void SetPixelShaderTextures(CommandList& cmds, uint32_t slot, uint32_t textureCount, Texture* pTextures);
+		void SetPixelShaderResourceViews(CommandList& cmds, uint32_t slot, uint32_t textureCount, ShaderResourceView* pShaderResourceView);
 		void SetRasterizerState(CommandList& cmds, RasterizerState& rasterizerState);
 		void SetViewports(CommandList& cmds, uint32_t viewportCount, Viewport* pViewports);
 		void SetScissors(CommandList& cmds, uint32_t scissorCount, Scissor* pScissors);
 		void SetVertexShaderConstantBuffers(CommandList& cmds, uint32_t slot, uint32_t bufferCount, Buffer* pBuffers);
 		void SetVertexShaderSamplers(CommandList& cmds, uint32_t slot, uint32_t samplerCount, SamplerState* pSamplers);
 		void SetVertexShader(CommandList& cmds, VertexShader* pShader);
-		void SetVertexShaderTextures(CommandList& cmds, uint32_t slot, uint32_t textureCount, Texture* pTextures);
+		void SetVertexShaderResourceViews(CommandList& cmds, uint32_t slot, uint32_t textureCount, ShaderResourceView* pShaderResourceView);
 		void SetGeometryShaderConstantBuffers(CommandList& cmds, uint32_t slot, uint32_t bufferCount, Buffer* pBuffers);
 		void SetGeometryShaderSamplers(CommandList& cmds, uint32_t slot, uint32_t samplerCount, SamplerState* pSamplers);
 		void SetGeometryShader(CommandList& cmds, GeometryShader* pShader);
-		void SetGeometryShaderTextures(CommandList& cmds, uint32_t slot, uint32_t textureCount, Texture* pTextures);
+		void SetGeometryShaderResourceViews(CommandList& cmds, uint32_t slot, uint32_t textureCount, ShaderResourceView* pShaderResourceView);
 
 		void ExecuteCommandList(RendererContext& context, CommandList& cmds);
 	}

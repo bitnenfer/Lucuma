@@ -49,7 +49,7 @@ struct CmdSetComputeShader
 {
 	ID3D11ComputeShader* pShader;
 };
-struct CmdSetTextures 
+struct CmdSetShaderResourceViews 
 {
 	ID3D11ShaderResourceView* shaderResourceView[LU_MAX_TEXTURES];
 	uint32_t count;
@@ -153,7 +153,7 @@ union CmdAll
 	CmdSetConstantBuffer setConstantBuffer;
 	CmdSetSampler setSampler;
 	CmdSetComputeShader setComputeShader;
-	CmdSetTextures setTextures;
+	CmdSetShaderResourceViews setTextures;
 	CmdSetComputeShaderUAV setComputeShaderUAV;
 	CmdDispatch dispatch;
 	CmdIndirect dispatchIndirect;
@@ -184,6 +184,7 @@ bool lu::commands::CreateCommandList(IAllocator& allocator, uint32_t maxCommandC
 	commandList.commandAllocator.initialize((byte_t*)allocator.allocate(size), size);
 	if (commandList.commandAllocator.pBufferHead != NULL)
 	{
+		commandList.reset();
 		return true;
 	}
 	return false;
@@ -203,7 +204,7 @@ void lu::commands::ClearDepthStencilTarget(CommandList& cmds, DepthStencilTarget
 	cmd.clearStencil = clearStencil;;
 	cmds.addCommand(CmdId::ClearDepthStencilTarget, cmd);
 }
-void lu::commands::ClearRenderTarget(CommandList& cmds, RenderTarget& target, float32_t clearColor[4])
+void lu::commands::ClearRenderTarget(CommandList& cmds, RenderTarget& target, const float32_t clearColor[4])
 {
 	CmdClearRenderTarget cmd;
 	cmd.pView = (ID3D11RenderTargetView*)target.renderTarget;
@@ -216,10 +217,13 @@ void lu::commands::ClearRenderTarget(CommandList& cmds, RenderTarget& target, fl
 void lu::commands::SetComputeShaderConstantBuffer(CommandList& cmds, uint32_t slot, uint32_t bufferCount, Buffer* pBuffers)
 {
 	CmdSetConstantBuffer cmd;
-	if (bufferCount == 1)
+	if (bufferCount == 1 || pBuffers == NULL)
 	{
 		cmd.count = 1;
-		cmd.buffers[0] = (ID3D11Buffer*)pBuffers[0].buffer;
+		if (pBuffers != NULL)
+			cmd.buffers[0] = (ID3D11Buffer*)pBuffers[0].buffer;
+		else
+			cmd.buffers[0] = NULL;
 	}
 	else 
 	{
@@ -262,14 +266,14 @@ void lu::commands::SetComputeShader(CommandList& cmds, ComputeShader* pShader)
 		cmd.pShader = NULL;
 	cmds.addCommand(CmdId::SetComputeShader, cmd);
 }
-void lu::commands::SetComputeShaderTextures(CommandList& cmds, uint32_t slot, uint32_t textureCount, Texture* pTextures)
+void lu::commands::SetComputeShaderResourceViews(CommandList& cmds, uint32_t slot, uint32_t textureCount, ShaderResourceView* pShaderResourceViews)
 {
-	CmdSetTextures cmd;
-	if (textureCount == 1 || pTextures == NULL)
+	CmdSetShaderResourceViews cmd;
+	if (textureCount == 1 || pShaderResourceViews == NULL)
 	{
 		cmd.count = 1;
-		if (pTextures != NULL)
-			cmd.shaderResourceView[0] = (ID3D11ShaderResourceView*)pTextures[0].resource;
+		if (pShaderResourceViews != NULL)
+			cmd.shaderResourceView[0] = (ID3D11ShaderResourceView*)pShaderResourceViews[0].shaderResourceView;
 		else
 			cmd.shaderResourceView[0] = NULL;
 	}
@@ -278,20 +282,23 @@ void lu::commands::SetComputeShaderTextures(CommandList& cmds, uint32_t slot, ui
 		LU_ASSERT_MSG(textureCount < LU_MAX_TEXTURES, "Texture count exceeds the max amount of textures");
 		for (uint32_t i = 0; i < textureCount; ++i)
 		{
-			cmd.shaderResourceView[i] = (ID3D11ShaderResourceView*)pTextures[i].resource;
+			cmd.shaderResourceView[i] = (ID3D11ShaderResourceView*)pShaderResourceViews[i].shaderResourceView;
 		}
 		cmd.count = textureCount;
 	}
 	cmd.slot = slot;
-	cmds.addCommand(CmdId::SetComputeShaderTextures, cmd);
+	cmds.addCommand(CmdId::SetComputeShaderResourceViews, cmd);
 }
 void lu::commands::SetComputeShaderUAV(CommandList& cmds, uint32_t slot, uint32_t uavCount, UnorderedAccessView* pUAVs)
 {
 	CmdSetComputeShaderUAV cmd;
-	if (uavCount == 1)
+	if (uavCount == 1 || pUAVs == NULL)
 	{
 		cmd.count = 1;
-		cmd.uavs[0] = (ID3D11UnorderedAccessView*)pUAVs[0].uav;
+		if (pUAVs != NULL)
+			cmd.uavs[0] = (ID3D11UnorderedAccessView*)pUAVs[0].uav;
+		else
+			cmd.uavs[0] = NULL;
 	}
 	else
 	{
@@ -496,14 +503,14 @@ void lu::commands::SetPixelShader(CommandList& cmds, PixelShader* pShader)
 		cmd.pShader = NULL;
 	cmds.addCommand(CmdId::SetPixelShader, cmd);
 }
-void lu::commands::SetPixelShaderTextures(CommandList& cmds, uint32_t slot, uint32_t textureCount, Texture* pTextures)
+void lu::commands::SetPixelShaderResourceViews(CommandList& cmds, uint32_t slot, uint32_t textureCount, ShaderResourceView* pShaderResourceViews)
 {
-	CmdSetTextures cmd;
-	if (textureCount == 1 || pTextures == NULL)
+	CmdSetShaderResourceViews cmd;
+	if (textureCount == 1 || pShaderResourceViews == NULL)
 	{
 		cmd.count = 1;
-		if (pTextures != NULL)
-			cmd.shaderResourceView[0] = (ID3D11ShaderResourceView*)pTextures[0].resource;
+		if (pShaderResourceViews != NULL)
+			cmd.shaderResourceView[0] = (ID3D11ShaderResourceView*)pShaderResourceViews[0].shaderResourceView;
 		else
 			cmd.shaderResourceView[0] = NULL;
 	}
@@ -512,12 +519,12 @@ void lu::commands::SetPixelShaderTextures(CommandList& cmds, uint32_t slot, uint
 		LU_ASSERT_MSG(textureCount < LU_MAX_TEXTURES, "Texture count exceeds the max amount of textures");
 		for (uint32_t i = 0; i < textureCount; ++i)
 		{
-			cmd.shaderResourceView[i] = (ID3D11ShaderResourceView*)pTextures[i].resource;
+			cmd.shaderResourceView[i] = (ID3D11ShaderResourceView*)pShaderResourceViews[i].shaderResourceView;
 		}
 		cmd.count = textureCount;
 	}
 	cmd.slot = slot;
-	cmds.addCommand(CmdId::SetPixelShaderTextures, cmd);
+	cmds.addCommand(CmdId::SetPixelShaderResourceViews, cmd);
 }
 void lu::commands::SetRasterizerState(CommandList& cmds, RasterizerState& rasterizerState)
 {
@@ -642,14 +649,14 @@ void lu::commands::SetVertexShader(CommandList& cmds, VertexShader* pShader)
 	}
 	cmds.addCommand(CmdId::SetVertexShader, cmd);
 }
-void lu::commands::SetVertexShaderTextures(CommandList& cmds, uint32_t slot, uint32_t textureCount, Texture* pTextures)
+void lu::commands::SetVertexShaderResourceViews(CommandList& cmds, uint32_t slot, uint32_t textureCount, ShaderResourceView* pShaderResourceViews)
 {
-	CmdSetTextures cmd;
-	if (textureCount == 1 || pTextures == NULL)
+	CmdSetShaderResourceViews cmd;
+	if (textureCount == 1 || pShaderResourceViews == NULL)
 	{
 		cmd.count = 1;
-		if (pTextures != NULL)
-			cmd.shaderResourceView[0] = (ID3D11ShaderResourceView*)pTextures[0].resource;
+		if (pShaderResourceViews != NULL)
+			cmd.shaderResourceView[0] = (ID3D11ShaderResourceView*)pShaderResourceViews[0].shaderResourceView;
 		else
 			cmd.shaderResourceView[0] = NULL;
 	}
@@ -658,12 +665,12 @@ void lu::commands::SetVertexShaderTextures(CommandList& cmds, uint32_t slot, uin
 		LU_ASSERT_MSG(textureCount < LU_MAX_TEXTURES, "Texture count exceeds the max amount of textures");
 		for (uint32_t i = 0; i < textureCount; ++i)
 		{
-			cmd.shaderResourceView[i] = (ID3D11ShaderResourceView*)pTextures[i].resource;
+			cmd.shaderResourceView[i] = (ID3D11ShaderResourceView*)pShaderResourceViews[i].shaderResourceView;
 		}
 		cmd.count = textureCount;
 	}
 	cmd.slot = slot;
-	cmds.addCommand(CmdId::SetVertexShaderTextures, cmd);
+	cmds.addCommand(CmdId::SetVertexShaderResourceViews, cmd);
 }
 void lu::commands::SetGeometryShaderConstantBuffers(CommandList& cmds, uint32_t slot, uint32_t bufferCount, Buffer* pBuffers)
 {
@@ -714,14 +721,14 @@ void lu::commands::SetGeometryShader(CommandList& cmds, GeometryShader* pShader)
 		cmd.pShader = NULL;
 	cmds.addCommand(CmdId::SetGeometryShader, cmd);
 }
-void lu::commands::SetGeometryShaderTextures(CommandList& cmds, uint32_t slot, uint32_t textureCount, Texture* pTextures)
+void lu::commands::SetGeometryShaderResourceViews(CommandList& cmds, uint32_t slot, uint32_t textureCount, ShaderResourceView* pShaderResourceViews)
 {
-	CmdSetTextures cmd;
-	if (textureCount == 1 || pTextures == NULL)
+	CmdSetShaderResourceViews cmd;
+	if (textureCount == 1 || pShaderResourceViews == NULL)
 	{
 		cmd.count = 1;
-		if (pTextures != NULL)
-			cmd.shaderResourceView[0] = (ID3D11ShaderResourceView*)pTextures[0].resource;
+		if (pShaderResourceViews != NULL)
+			cmd.shaderResourceView[0] = (ID3D11ShaderResourceView*)pShaderResourceViews[0].shaderResourceView;
 		else
 			cmd.shaderResourceView[0] = NULL;
 	}
@@ -730,12 +737,12 @@ void lu::commands::SetGeometryShaderTextures(CommandList& cmds, uint32_t slot, u
 		LU_ASSERT_MSG(textureCount < LU_MAX_TEXTURES, "Texture count exceeds the max amount of textures");
 		for (uint32_t i = 0; i < textureCount; ++i)
 		{
-			cmd.shaderResourceView[i] = (ID3D11ShaderResourceView*)pTextures[i].resource;
+			cmd.shaderResourceView[i] = (ID3D11ShaderResourceView*)pShaderResourceViews[i].shaderResourceView;
 		}
 		cmd.count = textureCount;
 	}
 	cmd.slot = slot;
-	cmds.addCommand(CmdId::SetGeometryShaderTextures, cmd);
+	cmds.addCommand(CmdId::SetGeometryShaderResourceViews, cmd);
 }
 void lu::commands::ExecuteCommandList(RendererContext& context, CommandList& cmds)
 {
@@ -775,9 +782,9 @@ void lu::commands::ExecuteCommandList(RendererContext& context, CommandList& cmd
 			pC->CSSetShader(pCmd->pShader, NULL, 0);
 			break;
 		}
-		case lu::CmdId::SetComputeShaderTextures:
+		case lu::CmdId::SetComputeShaderResourceViews:
 		{
-			const CmdSetTextures* pCmd = cmds.consumeCommand<CmdSetTextures>();
+			const CmdSetShaderResourceViews* pCmd = cmds.consumeCommand<CmdSetShaderResourceViews>();
 			pC->CSSetShaderResources(pCmd->slot, pCmd->count, pCmd->shaderResourceView);
 			break;
 		}
@@ -889,9 +896,9 @@ void lu::commands::ExecuteCommandList(RendererContext& context, CommandList& cmd
 			pC->PSSetShader(pCmd->pShader, NULL, 0);
 			break;
 		}
-		case lu::CmdId::SetPixelShaderTextures:
+		case lu::CmdId::SetPixelShaderResourceViews:
 		{
-			const CmdSetTextures* pCmd = cmds.consumeCommand<CmdSetTextures>();
+			const CmdSetShaderResourceViews* pCmd = cmds.consumeCommand<CmdSetShaderResourceViews>();
 			pC->PSSetShaderResources(pCmd->slot, pCmd->count, pCmd->shaderResourceView);
 			break;
 		}
@@ -932,9 +939,9 @@ void lu::commands::ExecuteCommandList(RendererContext& context, CommandList& cmd
 			pC->IASetInputLayout(pCmd->pInputLayout);
 			break;
 		}
-		case lu::CmdId::SetVertexShaderTextures:
+		case lu::CmdId::SetVertexShaderResourceViews:
 		{
-			const CmdSetTextures* pCmd = cmds.consumeCommand<CmdSetTextures>();
+			const CmdSetShaderResourceViews* pCmd = cmds.consumeCommand<CmdSetShaderResourceViews>();
 			pC->VSSetShaderResources(pCmd->slot, pCmd->count, pCmd->shaderResourceView);
 			break;
 		}
@@ -956,9 +963,9 @@ void lu::commands::ExecuteCommandList(RendererContext& context, CommandList& cmd
 			pC->GSSetShader(pCmd->pShader, NULL, 0);
 			break;
 		}
-		case lu::CmdId::SetGeometryShaderTextures:
+		case lu::CmdId::SetGeometryShaderResourceViews:
 		{
-			const CmdSetTextures* pCmd = cmds.consumeCommand<CmdSetTextures>();
+			const CmdSetShaderResourceViews* pCmd = cmds.consumeCommand<CmdSetShaderResourceViews>();
 			pC->GSSetShaderResources(pCmd->slot, pCmd->count, pCmd->shaderResourceView);
 			break;
 		}

@@ -13,14 +13,6 @@ namespace lu
 		USAGE_STAGING
 	};
 
-	enum BufferBind
-	{
-		BIND_VERTEX_BUFFER = 1,
-		BIND_INDEX_BUFFER = 2,
-		BIND_CONSTANT_BUFFER = 4,
-		BIND_UNORDERED_ACCESS = 8
-	};
-
 	enum CPUAccess
 	{
 		CPU_ACCESS_NONE = 0,

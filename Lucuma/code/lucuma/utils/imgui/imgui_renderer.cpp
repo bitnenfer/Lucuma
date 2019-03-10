@@ -120,13 +120,15 @@ bool lu::ImGuiRenderer::initialize(IAllocator& allocator, RendererDevice& device
 		io.Fonts->GetTexDataAsRGBA32(&pPixels, &width, &height, NULL);
 		if (pPixels == NULL)
 			return false;
-		if (!resources::CreateTexture2D(device, ResourceFormat::FORMAT_R8G8B8A8_UNORM, pPixels, width, height, TextureBinding::SHADER_BINDING, fontTexture))
+		if (!resources::CreateTexture2D(device, ResourceFormat::FORMAT_R8G8B8A8_UNORM, pPixels, width, height, BindFlag::BIND_SHADER_RESOURCE, fontTexture))
 			return false;
-		io.Fonts->TexID = &fontTexture;
+		if (!resources::CreateTexture2DShaderResourceView(device, fontTexture, 1, 0, fontTextureResourceView))
+			return false;
+		io.Fonts->TexID = &fontTextureResourceView;
 	}
 
 	// constant buffer
-	if (!resources::CreateBuffer(device, sizeof(cbuffer), BufferUsage::USAGE_DYNAMIC, BufferBind::BIND_CONSTANT_BUFFER, CPUAccess::CPU_ACCESS_WRITE, 0, 0, NULL, constantBuffer))
+	if (!resources::CreateBuffer(device, sizeof(cbuffer), BufferUsage::USAGE_DYNAMIC, BindFlag::BIND_CONSTANT_BUFFER, CPUAccess::CPU_ACCESS_WRITE, 0, 0, NULL, constantBuffer))
 		return false;
 
 	return true;
@@ -134,6 +136,7 @@ bool lu::ImGuiRenderer::initialize(IAllocator& allocator, RendererDevice& device
 
 void lu::ImGuiRenderer::finalize(RendererDevice& device)
 {
+	resources::DestroyShaderResourceView(device, fontTextureResourceView);
 	resources::DestroyTexture2D(device, fontTexture);
 	resources::DestroyBuffer(device, constantBuffer);
 	resources::DestroyBuffer(device, vertexBuffer);
@@ -172,7 +175,7 @@ void lu::ImGuiRenderer::draw(CommandList& cmds, RendererDevice& device, Renderer
 	{
 		if (vertexBuffer.buffer != LU_INVALID_HANDLE)
 			resources::DestroyBuffer(device, vertexBuffer);
-		resources::CreateBuffer(device, (uint32_t)totalVerticesInBytes, BufferUsage::USAGE_DYNAMIC, BufferBind::BIND_VERTEX_BUFFER, CPUAccess::CPU_ACCESS_WRITE, ResourceType::RESOURCE_NONE, 0, NULL, vertexBuffer);
+		resources::CreateBuffer(device, (uint32_t)totalVerticesInBytes, BufferUsage::USAGE_DYNAMIC, BindFlag::BIND_VERTEX_BUFFER, CPUAccess::CPU_ACCESS_WRITE, ResourceType::RESOURCE_NONE, 0, NULL, vertexBuffer);
 		vertexBufferSize = totalVerticesInBytes;
 	}
 
@@ -180,7 +183,7 @@ void lu::ImGuiRenderer::draw(CommandList& cmds, RendererDevice& device, Renderer
 	{
 		if (indexBuffer.buffer != LU_INVALID_HANDLE)
 			resources::DestroyBuffer(device, indexBuffer);
-		resources::CreateBuffer(device, (uint32_t)totalIndicesInBytes, BufferUsage::USAGE_DYNAMIC, BufferBind::BIND_INDEX_BUFFER, CPUAccess::CPU_ACCESS_WRITE, ResourceType::RESOURCE_NONE, 0, NULL, indexBuffer);
+		resources::CreateBuffer(device, (uint32_t)totalIndicesInBytes, BufferUsage::USAGE_DYNAMIC, BindFlag::BIND_INDEX_BUFFER, CPUAccess::CPU_ACCESS_WRITE, ResourceType::RESOURCE_NONE, 0, NULL, indexBuffer);
 		indexBufferSize = totalIndicesInBytes;
 	}
 
@@ -241,10 +244,10 @@ void lu::ImGuiRenderer::draw(CommandList& cmds, RendererDevice& device, Renderer
 			{
 				ImVec4 clipRect = ImVec4(pCmd->ClipRect.x - pos.x, pCmd->ClipRect.y - pos.y, pCmd->ClipRect.z - pos.x, pCmd->ClipRect.w - pos.y);
 				Scissor scissor = { (int32_t)clipRect.x, (int32_t)clipRect.y, (int32_t)clipRect.z, (int32_t)clipRect.w };
-				Texture* pTexture = (Texture*)pCmd->TextureId;
+				ShaderResourceView* pShaderResourceView = (ShaderResourceView*)pCmd->TextureId;
 
 				commands::SetScissors(cmds, 1, &scissor);
-				commands::SetPixelShaderTextures(cmds, 0, 1, pTexture);
+				commands::SetPixelShaderResourceViews(cmds, 0, 1, pShaderResourceView);
 				commands::DrawIndexed(cmds, pCmd->ElemCount, indexOffset, vertexOffset);
 			}
 			indexOffset += pCmd->ElemCount;

@@ -16,6 +16,9 @@ void demo2()
 	lu::ImGuiRenderer imguiRenderer;
 	lu::RenderTarget imguiRenderTarget;
 	lu::Texture2D imguiRenderTexture;
+	lu::Texture3D texture0;
+	lu::ShaderResourceView imguiRenderTextureSRV;
+	lu::ShaderResourceView texture0SRV;
 	lu::VertexShader fullscreenVS;
 	lu::PixelShader fullscreenPS;
 	lu::VertexLayout fullscreenLayout;
@@ -24,7 +27,6 @@ void demo2()
 	lu::SamplerState fullscreenSS;
 	lu::DepthStencilState fullscreenDS;
 	lu::Vec4 fullscreenCBData = { 640, 480, 0, 0 };
-	lu::Texture3D texture0;
 	struct Vertex {
 		float32_t x, y;
 		float32_t u, v;
@@ -52,12 +54,13 @@ void demo2()
 	LU_ASSERT(lu::renderer::CreateWindowAndInitializeGraphicsAPIAlsoWaitForRenderDoc(initDesc, window, device, context, mainRenderTarget));
 #endif
 	LU_ASSERT(lu::commands::CreateCommandList(pageAllocator, 100, commandList));
-	LU_ASSERT(lu::resources::CreateTexture2D(device, lu::ResourceFormat::FORMAT_R8G8B8A8_UNORM, NULL, 640, 480, lu::TextureBinding::RENDER_TARGET_BINDING | lu::TextureBinding::SHADER_BINDING, imguiRenderTexture));
+	LU_ASSERT(lu::resources::CreateTexture2D(device, lu::ResourceFormat::FORMAT_R8G8B8A8_UNORM, NULL, 640, 480, lu::BindFlag::BIND_RENDER_TARGET| lu::BindFlag::BIND_SHADER_RESOURCE, imguiRenderTexture));
 	LU_ASSERT(lu::resources::CreateRenderTarget2D(device, imguiRenderTexture, imguiRenderTarget));
+	LU_ASSERT(lu::resources::CreateTexture2DShaderResourceView(device, imguiRenderTexture, 1, 0, imguiRenderTextureSRV));
 	LU_ASSERT(imguiRenderer.initialize(pageAllocator, device, window, &imguiRenderTarget));
 	
-	LU_ASSERT(lu::resources::CreateVertexShaderFromSourceFile(pageAllocator, device, "code/lucuma/shaders/hlsl/fullscreen.hlsl", "mainVS", fullscreenLayout, fullscreenVS));
-	LU_ASSERT(lu::resources::CreatePixelShaderFromSourceFile(pageAllocator, device, "code/lucuma/shaders/hlsl/fullscreen.hlsl", "mainPS", fullscreenPS));
+	LU_ASSERT(lu::resources::CreateVertexShaderFromSourceFile(pageAllocator, device, "code/shaders/hlsl/fullscreen.hlsl", "mainVS", fullscreenLayout, fullscreenVS));
+	LU_ASSERT(lu::resources::CreatePixelShaderFromSourceFile(pageAllocator, device, "code/shaders/hlsl/fullscreen.hlsl", "mainPS", fullscreenPS));
 	LU_ASSERT(lu::resources::CreateBuffer(device, sizeof(fullscreenVertices), lu::BufferUsage::USAGE_IMMUTABLE, lu::BIND_VERTEX_BUFFER, lu::CPU_ACCESS_NONE, lu::RESOURCE_NONE, 0, fullscreenVertices, fullscreenVB));
 	fullscreenCBData.x = (float32_t)window.width;
 	fullscreenCBData.y = (float32_t)window.height;
@@ -87,7 +90,8 @@ void demo2()
 			}
 		}
 
-		LU_ASSERT(lu::resources::CreateTexture3D(device, lu::ResourceFormat::FORMAT_R8G8B8A8_UNORM, pixels, size, size, size, lu::SHADER_BINDING, texture0));
+		LU_ASSERT(lu::resources::CreateTexture3D(device, lu::ResourceFormat::FORMAT_R8G8B8A8_UNORM, pixels, size, size, size, lu::BindFlag::BIND_SHADER_RESOURCE, texture0));
+		LU_ASSERT(lu::resources::CreateTexture3DShaderResourceView(device, texture0, 1, 0, texture0SRV));
 		pageAllocator.deallocate(pixels);
 	}
 
@@ -133,7 +137,7 @@ void demo2()
 		float32_t clearColor[] = { 0,0,0,1 };
 		lu::commands::ClearRenderTarget(commandList, mainRenderTarget, clearColor);
 		lu::commands::ClearRenderTarget(commandList, imguiRenderTarget, clearColor);
-		lu::commands::SetPixelShaderTextures(commandList, 0, 1, NULL);
+		lu::commands::SetPixelShaderResourceViews(commandList, 0, 1, NULL);
 
 		imguiRenderer.draw(commandList, device, context);
 
@@ -156,8 +160,8 @@ void demo2()
 			lu::commands::SetVertexShader(commandList, &fullscreenVS);
 			lu::commands::SetPixelShader(commandList, &fullscreenPS);
 			lu::commands::SetRenderTargets(commandList, 1, &mainRenderTarget, NULL);
-			lu::commands::SetPixelShaderTextures(commandList, 0, 1, &imguiRenderTexture);
-			lu::commands::SetPixelShaderTextures(commandList, 1, 1, &texture0);
+			lu::commands::SetPixelShaderResourceViews(commandList, 0, 1, &imguiRenderTextureSRV);
+			lu::commands::SetPixelShaderResourceViews(commandList, 1, 1, &texture0SRV);
 			lu::commands::SetPixelShaderSamplers(commandList, 0, 1, &fullscreenSS);
 			lu::commands::SetPixelShaderConstantBuffers(commandList, 1, 1, &fullscreenCB);
 			uint32_t strides = sizeof(Vertex);
@@ -177,6 +181,8 @@ void demo2()
 		time += 0.01f;
 	}
 
+	lu::resources::DestroyShaderResourceView(device, texture0SRV);
+	lu::resources::DestroyShaderResourceView(device, imguiRenderTextureSRV);
 	lu::resources::DestroyTexture3D(device, texture0);
 	lu::states::DestroyDepthStencilState(device, fullscreenDS);
 	lu::states::DestroySamplerState(device, fullscreenSS);

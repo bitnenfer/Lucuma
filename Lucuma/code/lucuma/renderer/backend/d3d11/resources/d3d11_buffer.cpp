@@ -1,4 +1,5 @@
 #include "../../../resources/buffer.h"
+#include "../../../resources/format.h"
 #include <d3d11.h>
 #include <malloc.h>
 #include <stdio.h>
@@ -30,17 +31,20 @@ bool lu::resources::CreateBuffer(const RendererDevice& device, uint32_t bufferBy
 	uint32_t cpuAccessFlags = 0;
 	uint32_t resourceMiscFlags = 0;
 
-	if ((binding & BufferBind::BIND_VERTEX_BUFFER) != 0)
+	if ((binding & BindFlag::BIND_VERTEX_BUFFER) != 0)
 		bindFlags |= D3D11_BIND_VERTEX_BUFFER;
-	if ((binding & BufferBind::BIND_INDEX_BUFFER) != 0)
+	if ((binding & BindFlag::BIND_INDEX_BUFFER) != 0)
 		bindFlags |= D3D11_BIND_INDEX_BUFFER;
-	if ((binding & BufferBind::BIND_CONSTANT_BUFFER) != 0)
+	if ((binding & BindFlag::BIND_CONSTANT_BUFFER) != 0)
 	{
 		LU_ASSERT_MSG(bufferBytesSize > 0 && (bufferBytesSize % 16) == 0, "Buffer size needs to be multiple of 16. Selected size is %u bytes", bufferBytesSize);
 		bindFlags |= D3D11_BIND_CONSTANT_BUFFER;
 	}
-	if ((binding & BufferBind::BIND_UNORDERED_ACCESS) != 0)
+	if ((binding & BindFlag::BIND_UNORDERED_ACCESS) != 0)
 		bindFlags |= D3D11_BIND_UNORDERED_ACCESS;
+
+	if ((binding & BindFlag::BIND_SHADER_RESOURCE) != 0)
+		bindFlags |= D3D11_BIND_SHADER_RESOURCE;
 
 	if ((cpuAccess & CPUAccess::CPU_ACCESS_WRITE) != 0)
 		cpuAccessFlags |= D3D11_CPU_ACCESS_WRITE;

@@ -1,7 +1,7 @@
-#include "demo2.h"
+#include "demo3.h"
 
 int main(int argc, const char* pArgv)
 {
-	demo2();
+	demo3();
 	return 0;
 }

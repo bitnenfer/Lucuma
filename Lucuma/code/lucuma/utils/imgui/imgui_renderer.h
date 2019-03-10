@@ -44,5 +44,6 @@ namespace lu
 		Buffer indexBuffer;
 		Buffer constantBuffer;
 		Texture2D fontTexture;
+		ShaderResourceView fontTextureResourceView;
 	};
 }

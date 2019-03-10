@@ -2,13 +2,13 @@
 
 bool lu::resources::CreateMesh(const RendererDevice& device, const void* pVertices, uint32_t vertexCount, const void* pIndices, uint32_t indexCount, Mesh& mesh)
 {
-	if (!resources::CreateBuffer(device, vertexCount * sizeof(MeshVertex), BufferUsage::USAGE_IMMUTABLE, BufferBind::BIND_VERTEX_BUFFER, CPUAccess::CPU_ACCESS_NONE, ResourceType::RESOURCE_NONE, 0, pVertices, mesh.vertexBuffer))
+	if (!resources::CreateBuffer(device, vertexCount * sizeof(MeshVertex), BufferUsage::USAGE_IMMUTABLE, BindFlag::BIND_VERTEX_BUFFER, CPUAccess::CPU_ACCESS_NONE, ResourceType::RESOURCE_NONE, 0, pVertices, mesh.vertexBuffer))
 	{
 		return false;
 	}
 	if (pIndices != NULL)
 	{
-		if (!resources::CreateBuffer(device, indexCount * sizeof(uint16_t), BufferUsage::USAGE_IMMUTABLE, BufferBind::BIND_INDEX_BUFFER, CPUAccess::CPU_ACCESS_NONE, ResourceType::RESOURCE_NONE, 0, pIndices, mesh.indexBuffer))
+		if (!resources::CreateBuffer(device, indexCount * sizeof(uint16_t), BufferUsage::USAGE_IMMUTABLE, BindFlag::BIND_INDEX_BUFFER, CPUAccess::CPU_ACCESS_NONE, ResourceType::RESOURCE_NONE, 0, pIndices, mesh.indexBuffer))
 		{
 			return false;
 		}

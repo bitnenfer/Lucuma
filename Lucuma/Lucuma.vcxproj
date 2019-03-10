@@ -130,6 +130,7 @@
     <ClCompile Include="code\lucuma\backend\win32\win32_debug.cpp" />
     <ClCompile Include="code\lucuma\math.cpp" />
     <ClCompile Include="code\lucuma\renderer\backend\d3d11\resources\d3d11_backend.cpp" />
+    <ClCompile Include="code\lucuma\renderer\backend\d3d11\resources\d3d11_shader_resource_view.cpp" />
     <ClCompile Include="code\lucuma\renderer\backend\d3d11\states\d3d11_blend_state.cpp" />
     <ClCompile Include="code\lucuma\renderer\backend\d3d11\resources\d3d11_buffer.cpp" />
     <ClCompile Include="code\lucuma\renderer\backend\d3d11\resources\d3d11_command_list.cpp" />
@@ -155,13 +156,16 @@
   <ItemGroup>
     <ClInclude Include="code\demo1.h" />
     <ClInclude Include="code\demo2.h" />
+    <ClInclude Include="code\demo3.h" />
     <ClInclude Include="code\lucuma\debug.h" />
     <ClInclude Include="code\lucuma\file.h" />
     <ClInclude Include="code\lucuma\input.h" />
+    <ClInclude Include="code\lucuma\lucuma.h" />
     <ClInclude Include="code\lucuma\math.h" />
     <ClInclude Include="code\lucuma\platform.h" />
     <ClInclude Include="code\lucuma\renderer.h" />
     <ClInclude Include="code\lucuma\renderer\render_pass.h" />
+    <ClInclude Include="code\lucuma\renderer\resources\shader_resource_view.h" />
     <ClInclude Include="code\lucuma\renderer\states\blend_state.h" />
     <ClInclude Include="code\lucuma\renderer\resources\buffer.h" />
     <ClInclude Include="code\lucuma\renderer\resources\command_list.h" />
@@ -193,12 +197,12 @@
     <ClInclude Include="code\lucuma\utils\page_allocator.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="code\lucuma\shaders\hlsl\default.hlsl">
+    <None Include="code\shaders\hlsl\default.hlsl">
       <FileType>Document</FileType>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="code\lucuma\shaders\hlsl\voxelization.hlsl">
+    <None Include="code\shaders\hlsl\voxelization.hlsl">
       <FileType>Document</FileType>
     </None>
   </ItemGroup>
@@ -208,12 +212,22 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="code\lucuma\shaders\hlsl\common.hlsl">
+    <None Include="code\shaders\hlsl\common.hlsl">
       <FileType>Document</FileType>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="code\lucuma\shaders\hlsl\fullscreen.hlsl">
+    <None Include="code\shaders\hlsl\fullscreen.hlsl">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="code\shaders\hlsl\compute.hlsl">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="code\shaders\hlsl\quad.hlsl">
       <FileType>Document</FileType>
     </None>
   </ItemGroup>

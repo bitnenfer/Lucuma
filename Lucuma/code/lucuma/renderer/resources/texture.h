@@ -13,21 +13,13 @@ namespace lu
 		TEXTURE_2D,
 		TEXTURE_3D
 	};
-
-	enum TextureBinding : uint32_t
-	{
-		SHADER_BINDING = 1,
-		RENDER_TARGET_BINDING = 2,
-		DEPTH_STENCIL_BINDING = 4
-	};
-
+	
 	struct Texture
 	{
-		Texture() : texture(LU_INVALID_HANDLE), resource(LU_INVALID_HANDLE), format(ResourceFormat::FORMAT_UNKNOWN) {}
+		Texture() : texture(LU_INVALID_HANDLE), format(ResourceFormat::FORMAT_UNKNOWN) {}
 		bool isValid() { return texture != LU_INVALID_HANDLE; }
 
 		handle_t texture;
-		handle_t resource;
 		ResourceFormat format;
 		uint32_t bindingFlags;
 	};

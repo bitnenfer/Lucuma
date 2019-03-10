@@ -93,6 +93,9 @@
     <ClCompile Include="code\lucuma\renderer\backend\d3d11\states\d3d11_sampler_state.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="code\lucuma\renderer\backend\d3d11\resources\d3d11_shader_resource_view.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="code\lucuma\math.h">
@@ -209,12 +212,23 @@
     <ClInclude Include="code\lucuma\renderer\states\sampler_state.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="code\demo3.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="code\lucuma\lucuma.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="code\lucuma\renderer\resources\shader_resource_view.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="code\lucuma\shaders\hlsl\default.hlsl" />
-    <None Include="code\lucuma\shaders\hlsl\voxelization.hlsl" />
     <None Include="code\lucuma\utils\imgui\shaders\hlsl\dear_imgui.hlsl" />
-    <None Include="code\lucuma\shaders\hlsl\common.hlsl" />
-    <None Include="code\lucuma\shaders\hlsl\fullscreen.hlsl" />
+    <None Include="code\shaders\hlsl\common.hlsl" />
+    <None Include="code\shaders\hlsl\default.hlsl" />
+    <None Include="code\shaders\hlsl\fullscreen.hlsl" />
+    <None Include="code\shaders\hlsl\voxelization.hlsl" />
+    <None Include="code\shaders\hlsl\compute.hlsl" />
+    <None Include="code\shaders\hlsl\quad.hlsl" />
   </ItemGroup>
 </Project>

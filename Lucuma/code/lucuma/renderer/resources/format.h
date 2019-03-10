@@ -4,6 +4,17 @@
 
 namespace lu
 {
+	enum BindFlag : uint32_t
+	{
+		BIND_VERTEX_BUFFER = 0x01,
+		BIND_INDEX_BUFFER = 0x02,
+		BIND_CONSTANT_BUFFER = 0x04,
+		BIND_UNORDERED_ACCESS = 0x08,
+		BIND_SHADER_RESOURCE = 0x10,
+		BIND_RENDER_TARGET = 0x20,
+		BIND_DEPTH_STENCIL = 0x40
+	};
+
 	enum class ResourceFormat : uint32_t
 	{
 		FORMAT_UNKNOWN,
