@@ -150,6 +150,8 @@
     <ClCompile Include="code\lucuma\utils\imgui\imgui_renderer.cpp" />
     <ClCompile Include="code\lucuma\utils\imgui\imgui\imgui_widgets.cpp" />
     <ClCompile Include="code\lucuma\utils\linear_allocator.cpp" />
+    <ClCompile Include="code\lucuma\utils\loaders\gltf.cpp" />
+    <ClCompile Include="code\lucuma\utils\loaders\json.cpp" />
     <ClCompile Include="code\lucuma\utils\loaders\obj_loader.cpp" />
     <ClCompile Include="code\main.cpp" />
   </ItemGroup>
@@ -157,6 +159,7 @@
     <ClInclude Include="code\demo1.h" />
     <ClInclude Include="code\demo2.h" />
     <ClInclude Include="code\demo3.h" />
+    <ClInclude Include="code\demo4.h" />
     <ClInclude Include="code\lucuma\debug.h" />
     <ClInclude Include="code\lucuma\file.h" />
     <ClInclude Include="code\lucuma\input.h" />
@@ -191,6 +194,8 @@
     <ClInclude Include="code\lucuma\utils\imgui\imgui\imstb_textedit.h" />
     <ClInclude Include="code\lucuma\utils\imgui\imgui\imstb_truetype.h" />
     <ClInclude Include="code\lucuma\utils\linear_allocator.h" />
+    <ClInclude Include="code\lucuma\utils\loaders\gltf.h" />
+    <ClInclude Include="code\lucuma\utils\loaders\json.h" />
     <ClInclude Include="code\lucuma\utils\loaders\obj_loader.h" />
     <ClInclude Include="code\lucuma\utils\macros.h" />
     <ClInclude Include="code\lucuma\utils\loaders\objpar.h" />

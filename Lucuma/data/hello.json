@@ -1,0 +1,10 @@
+[
+	{
+		"One": 1.2,
+		"Two": false,
+		"Hello": true,
+		"Potatoe": [ 1, 2, 3, 4 ],
+		"SH": "Lorem ipsum."
+	},
+	null
+]

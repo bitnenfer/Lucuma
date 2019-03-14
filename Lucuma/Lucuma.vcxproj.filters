@@ -96,6 +96,12 @@
     <ClCompile Include="code\lucuma\renderer\backend\d3d11\resources\d3d11_shader_resource_view.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="code\lucuma\utils\loaders\gltf.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="code\lucuma\utils\loaders\json.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="code\lucuma\math.h">
@@ -219,6 +225,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="code\lucuma\renderer\resources\shader_resource_view.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="code\lucuma\utils\loaders\gltf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="code\demo4.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="code\lucuma\utils\loaders\json.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

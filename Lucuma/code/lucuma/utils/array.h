@@ -31,13 +31,26 @@ namespace lu
 			size = 0;
 			resize(startSize);
 		}
+
+		T* alloc()
+		{
+			if (size + 1 > capacity || pBuffer == NULL)
+			{
+				uint32_t newCapacity = capacity * 2; // Maybe have something more flexible
+				if (newCapacity < 1) newCapacity = 2;
+				resize(newCapacity);
+				capacity = newCapacity;
+			}
+			size += 1;
+			return &pBuffer[size - 1];
+		}
 		
 		void push(const T& element)
 		{
-			LU_ASSERT(pBuffer != NULL);
-			if (size + 1 >= capacity)
+			if (size + 1 > capacity || pBuffer == NULL)
 			{
 				uint32_t newCapacity = capacity * 2; // Maybe have something more flexible
+				if (newCapacity < 1) newCapacity = 2;
 				resize(newCapacity);
 				capacity = newCapacity;
 			}
@@ -68,6 +81,14 @@ namespace lu
 			if (newSize > size)
 			{
 				size = newSize;
+			}
+		}
+
+		void pushRepeat(const T& element, uint32_t count)
+		{
+			for (uint32_t i = 0; i < elementCount; ++i)
+			{
+				push(element);
 			}
 		}
 
@@ -107,13 +128,24 @@ namespace lu
 
 		T& operator[](uint32_t index)
 		{
+			return at(index);
+		}
+
+		T& at(uint32_t index)
+		{
+			LU_ASSERT(pBuffer != NULL && index < size);
+			return pBuffer[index];
+		}
+
+		const T& constAt(uint32_t index) const
+		{
 			LU_ASSERT(pBuffer != NULL && index < size);
 			return pBuffer[index];
 		}
 
 		T* getBuffer() { return pBuffer; }
-		uint32_t getSize() { return size; }
-		uint32_t getCapacity() { return capacity; }
+		uint32_t getSize() const { return size; }
+		uint32_t getCapacity() const { return capacity; }
 
 	protected:
 		T* pBuffer;
@@ -126,11 +158,13 @@ namespace lu
 	{
 		void resize(uint32_t newSize) override
 		{
+			if (newSize < capacity) return;
+
 			LU_ASSERT(pAllocator != NULL);
 			if (pBuffer != NULL)
 			{
 				T* pNewBuffer = (T*)pAllocator->allocate(newSize);
-				memcpy(pNewBuffer, pBuffer, size);
+				memcpy(pNewBuffer, pBuffer, size * sizeof(T));
 				pAllocator->deallocate(pBuffer);
 				pBuffer = pNewBuffer;
 			}
@@ -152,7 +186,7 @@ namespace lu
 		}
 
 		typedef IArray<T> ParentType;
-		Array() : ParentType() {};
+		Array() : ParentType(), pAllocator(NULL) {};
 		Array(IAllocator* pAllocator) : ParentType(), pAllocator(pAllocator) {}
 		Array(IAllocator* pAllocator, uint32_t size) : ParentType(), pAllocator(pAllocator) 
 		{

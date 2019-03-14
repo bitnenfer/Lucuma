@@ -2,6 +2,11 @@
 
 #include "../types.h"
 
+struct _LU_PlacementNew {};
+inline void* operator new(size_t, _LU_PlacementNew, void* ptr) { return ptr; }
+inline void operator delete(void*, _LU_PlacementNew, void*) {}
+
+#define LU_NEW(p)  new(_LU_PlacementNew (), p)
 #define LU_UNUSED(n) ((void)&(n))
 #define LU_ALIGN_ADDRESS(address, alignment) (void*)(((uintptr_t)(address) + (((uintptr_t)alignment) - 1)) & ~(((uintptr_t)alignment) - 1))
 #define LU_FWD_PTR(address, bytes) (void*)((uintptr_t)(address) + bytes)
