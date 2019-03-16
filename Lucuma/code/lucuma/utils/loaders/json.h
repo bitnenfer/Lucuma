@@ -2,6 +2,7 @@
 
 #include "../allocator.h"
 #include "../../types.h"
+#include "../array.h"
 
 namespace lu
 {

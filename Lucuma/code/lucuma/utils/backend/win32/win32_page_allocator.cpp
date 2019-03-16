@@ -3,7 +3,8 @@
 
 void* lu::PageAllocator::allocate(uint64_t size)
 {
-	return (void*)VirtualAlloc(NULL, (SIZE_T)size, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+	void* p = (void*)VirtualAlloc(NULL, (SIZE_T)size, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+	return p;
 }
 void* lu::PageAllocator::allocateAligned(uint64_t size, uint32_t alignment)
 {

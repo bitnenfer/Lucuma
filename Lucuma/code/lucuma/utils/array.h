@@ -146,6 +146,7 @@ namespace lu
 		T* getBuffer() { return pBuffer; }
 		uint32_t getSize() const { return size; }
 		uint32_t getCapacity() const { return capacity; }
+		bool isInitialized() const { return pBuffer != NULL; }
 
 	protected:
 		T* pBuffer;
@@ -163,14 +164,14 @@ namespace lu
 			LU_ASSERT(pAllocator != NULL);
 			if (pBuffer != NULL)
 			{
-				T* pNewBuffer = (T*)pAllocator->allocate(newSize);
+				T* pNewBuffer = (T*)pAllocator->allocate(newSize * sizeof(T));
 				memcpy(pNewBuffer, pBuffer, size * sizeof(T));
 				pAllocator->deallocate(pBuffer);
 				pBuffer = pNewBuffer;
 			}
 			else
 			{
-				pBuffer = (T*)pAllocator->allocate(newSize);
+				pBuffer = (T*)pAllocator->allocate(newSize * sizeof(T));
 			}
 			capacity = newSize;
 		}
