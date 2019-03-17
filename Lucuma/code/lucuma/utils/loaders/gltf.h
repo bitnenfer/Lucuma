@@ -164,7 +164,6 @@ namespace lu
 
 	struct GLTFBufferView
 	{
-		
 		int32_t buffer;
 		int32_t byteOffset;
 		int32_t byteLength;
@@ -214,7 +213,7 @@ namespace lu
 
 	struct GLTFPBRMetallicRoughness
 	{
-		float32_t baseColor[4];
+		float32_t baseColorFactor[4];
 		float32_t metallicFactor;
 		float32_t roughnessFactor;
 		GLTFTextureInfo baseColorTexture;

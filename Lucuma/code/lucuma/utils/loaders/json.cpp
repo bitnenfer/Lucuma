@@ -706,32 +706,32 @@ const lu::JSONArray* lu::json::GetArrayFromObject(const JSONTable& table, const 
 	return &table.arrays.constAt(pJKey->index);
 }
 
-float32_t lu::json::GetFloatFromObject(const JSONTable& table, const JSONObject& object, const char* pKey)
+float32_t lu::json::GetFloatFromObject(const JSONTable& table, const JSONObject& object, const char* pKey, float32_t defaultValue)
 {
 	const JSONKey* pJKey = GetKeyFromObject(object, pKey);
-	if (pJKey == NULL) return 0.0f;
+	if (pJKey == NULL) return defaultValue;
 	if (pJKey->type == JSON_FLOAT)
 		return table.floats.constAt(pJKey->index);
 	else if (pJKey->type == JSON_INT)
 		return (float32_t)table.ints.constAt(pJKey->index);
-	return 0.0f;
+	return defaultValue;
 }
 
-int32_t lu::json::GetIntFromObject(const JSONTable& table, const JSONObject& object, const char* pKey)
+int32_t lu::json::GetIntFromObject(const JSONTable& table, const JSONObject& object, const char* pKey, int32_t defaultValue)
 {
 	const JSONKey* pJKey = GetKeyFromObject(object, pKey);
-	if (pJKey == NULL) return 0;
+	if (pJKey == NULL) return defaultValue;
 	if (pJKey->type == JSON_INT)
 		return table.ints.constAt(pJKey->index);
 	else if (pJKey->type == JSON_FLOAT)
 		return (int32_t)table.floats.constAt(pJKey->index);
-	return 0.0f;
+	return defaultValue;
 }
 
-bool lu::json::GetBoolFromObject(const JSONTable& table, const JSONObject& object, const char* pKey)
+bool lu::json::GetBoolFromObject(const JSONTable& table, const JSONObject& object, const char* pKey, bool defaultValue)
 {
 	const JSONKey* pJKey = GetKeyFromObject(object, pKey);
-	if (pJKey == NULL || pJKey->type != JSON_BOOL) return false;
+	if (pJKey == NULL || pJKey->type != JSON_BOOL) return defaultValue;
 	return table.bools.constAt(pJKey->index);
 }
 
@@ -774,32 +774,32 @@ const lu::JSONArray* lu::json::GetArrayFromArray(const JSONTable& table, const J
 	return &table.arrays.constAt(pElement->index);
 }
 
-float32_t lu::json::GetFloatFromArray(const JSONTable& table, const JSONArray& array, uint32_t index)
+float32_t lu::json::GetFloatFromArray(const JSONTable& table, const JSONArray& array, uint32_t index, float32_t defaultValue)
 {
 	const lu::JSONElement* pElement = GetElementFromArray(array, index);
-	if (pElement == NULL) return NULL;
+	if (pElement == NULL) return defaultValue;
 	if (pElement->type == JSON_FLOAT)
 		return table.floats.constAt(pElement->index);
 	else if (pElement->type == JSON_INT)
 		return (float32_t)table.ints.constAt(pElement->index);
-	return 0.0f;
+	return defaultValue;
 }
 
-int32_t lu::json::GetIntFromArray(const JSONTable& table, const JSONArray& array, uint32_t index)
+int32_t lu::json::GetIntFromArray(const JSONTable& table, const JSONArray& array, uint32_t index, int32_t defaultValue)
 {
 	const lu::JSONElement* pElement = GetElementFromArray(array, index);
-	if (pElement == NULL) return NULL;
+	if (pElement == NULL) return defaultValue;
 	if (pElement->type == JSON_INT)
 		return table.ints.constAt(pElement->index);
 	else if (pElement->type == JSON_FLOAT)
 		return (int32_t)table.floats.constAt(pElement->index);
-	return 0.0f;
+	return defaultValue;
 }
 
-bool lu::json::GetBoolFromArray(const JSONTable& table, const JSONArray& array, uint32_t index)
+bool lu::json::GetBoolFromArray(const JSONTable& table, const JSONArray& array, uint32_t index, bool defaultValue)
 {
 	const lu::JSONElement* pElement = GetElementFromArray(array, index);
-	if (pElement == NULL || pElement->type != JSON_BOOL) return NULL;
+	if (pElement == NULL || pElement->type != JSON_BOOL) return defaultValue;
 	return table.bools.constAt(pElement->index);
 }
 

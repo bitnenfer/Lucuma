@@ -78,9 +78,9 @@ namespace lu
 		JSONValueType GetTypeFromObject(const JSONObject& object, const char* pKey);
 		const JSONObject* GetObjectFromObject(const JSONTable& table, const JSONObject& object, const char* pKey);
 		const JSONArray* GetArrayFromObject(const JSONTable& table, const JSONObject& object, const char* pKey);
-		float32_t GetFloatFromObject(const JSONTable& table, const JSONObject& object, const char* pKey);
-		int32_t GetIntFromObject(const JSONTable& table, const JSONObject& object, const char* pKey);
-		bool GetBoolFromObject(const JSONTable& table, const JSONObject& object, const char* pKey);
+		float32_t GetFloatFromObject(const JSONTable& table, const JSONObject& object, const char* pKey, float32_t defaultValue = 0.0f);
+		int32_t GetIntFromObject(const JSONTable& table, const JSONObject& object, const char* pKey, int32_t defaultValue = 0);
+		bool GetBoolFromObject(const JSONTable& table, const JSONObject& object, const char* pKey, bool defaultValue = false);
 		const char* GetStringFromObject(const JSONTable& table, const JSONObject& object, const char* pKey);
 
 		uint32_t GetArrayElementCount(const JSONArray& array);
@@ -88,9 +88,9 @@ namespace lu
 		JSONValueType GetTypeFromArray(const JSONArray& array, uint32_t index);
 		const JSONObject* GetObjectFromArray(const JSONTable& table, const JSONArray& array, uint32_t index);
 		const JSONArray* GetArrayFromArray(const JSONTable& table, const JSONArray& array, uint32_t index);
-		float32_t GetFloatFromArray(const JSONTable& table, const JSONArray& array, uint32_t index);
-		int32_t GetIntFromArray(const JSONTable& table, const JSONArray& array, uint32_t index);
-		bool GetBoolFromArray(const JSONTable& table, const JSONArray& array, uint32_t index);
+		float32_t GetFloatFromArray(const JSONTable& table, const JSONArray& array, uint32_t index, float32_t defaultValue = 0.0f);
+		int32_t GetIntFromArray(const JSONTable& table, const JSONArray& array, uint32_t index, int32_t defaultValue = 0);
+		bool GetBoolFromArray(const JSONTable& table, const JSONArray& array, uint32_t index, bool defaultValue = false);
 		const char* GetStringFromArray(const JSONTable& table, const JSONArray& array, uint32_t index);
 	}
 }

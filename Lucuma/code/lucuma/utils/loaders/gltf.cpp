@@ -1,5 +1,6 @@
 #include "gltf.h"
 #include "json.h"
+#include "../macros.h"
 
 #define LU_CHUNK_JSON 0x4E4F534A
 #define LU_CHUNK_BIN 0x004E4942
@@ -135,7 +136,9 @@ bool lu::gltf::Parse(IAllocator& allocator, const void* pBuffer, uint64_t buffer
 					const JSONObject* pAnimation = json::GetObjectFromArray(table, *pAnimations, index);
 					if (pAnimation == NULL) continue;
 					
-					GLTFAnimation animation;
+					GLTFAnimation& animation = *gltf.animations.alloc();
+
+					LU_NEW(&animation) GLTFAnimation;
 
 					// Animation Channels
 					const JSONArray* pChannels = json::GetArrayFromObject(table, *pAnimation, "channels");
@@ -188,8 +191,6 @@ bool lu::gltf::Parse(IAllocator& allocator, const void* pBuffer, uint64_t buffer
 							animation.samplers.push(sampler);
 						}
 					}
-
-					gltf.animations.push(animation);
 				}
 			}
 
@@ -343,6 +344,189 @@ bool lu::gltf::Parse(IAllocator& allocator, const void* pBuffer, uint64_t buffer
 					gltf.images.push(image);
 				}
 			}
+
+			// Materials
+			const JSONArray* pMaterials = json::GetArrayFromObject(table, *pRoot, "materials");
+			if (pMaterials != NULL)
+			{
+				for (uint32_t index = 0; index < json::GetArrayElementCount(*pMaterials); ++index)
+				{
+					const JSONObject* pMaterial = json::GetObjectFromArray(table, *pMaterials, index);
+					if (pMaterial == NULL) continue;
+					if (!gltf.materials.isInitialized()) gltf.materials.setAllocator(&allocator);
+					GLTFMaterial material;
+
+					material.alphaCutoff = json::GetFloatFromObject(table, *pMaterial, "alphaCutoff");
+					material.doubleSided = json::GetBoolFromObject(table, *pMaterial, "doubleSided");
+					material.alphaMode = GLTF_ALPHA_OPAQUE;
+
+					const JSONArray* pEmissiveFactor = json::GetArrayFromObject(table, *pMaterial, "emissiveFactor");
+					if (pEmissiveFactor != NULL)
+					{
+						material.emissiveFactor[0] = json::GetFloatFromArray(table, *pEmissiveFactor, 0);
+						material.emissiveFactor[1] = json::GetFloatFromArray(table, *pEmissiveFactor, 1);
+						material.emissiveFactor[2] = json::GetFloatFromArray(table, *pEmissiveFactor, 2);
+					}
+					else
+					{
+						material.emissiveFactor[0] = 0.0f;
+						material.emissiveFactor[1] = 0.0f;
+						material.emissiveFactor[2] = 0.0f;
+					}
+
+					const JSONObject* pPBRMetallicRoughness = json::GetObjectFromObject(table, *pMaterial, "pbrMetallicRoughness");
+					if (pPBRMetallicRoughness != NULL)
+					{
+						material.pbrMetallicRoughness.metallicFactor = json::GetFloatFromObject(table, *pPBRMetallicRoughness, "metallicFactor", 1.0f);
+						material.pbrMetallicRoughness.roughnessFactor = json::GetFloatFromObject(table, *pPBRMetallicRoughness, "roughnessFactor", 1.0f);
+
+						const JSONArray* pBaseColorFactor = json::GetArrayFromObject(table, *pPBRMetallicRoughness, "baseColorFactor");
+						if (pBaseColorFactor != NULL)
+						{
+							material.pbrMetallicRoughness.baseColorFactor[0] = json::GetFloatFromArray(table, *pBaseColorFactor, 0, 1.0f);
+							material.pbrMetallicRoughness.baseColorFactor[1] = json::GetFloatFromArray(table, *pBaseColorFactor, 1, 1.0f);
+							material.pbrMetallicRoughness.baseColorFactor[2] = json::GetFloatFromArray(table, *pBaseColorFactor, 2, 1.0f);
+							material.pbrMetallicRoughness.baseColorFactor[3] = json::GetFloatFromArray(table, *pBaseColorFactor, 3, 1.0f);
+						}
+						else
+						{
+							material.pbrMetallicRoughness.baseColorFactor[0] = 1.0f;
+							material.pbrMetallicRoughness.baseColorFactor[1] = 1.0f;
+							material.pbrMetallicRoughness.baseColorFactor[2] = 1.0f;
+							material.pbrMetallicRoughness.baseColorFactor[3] = 1.0f;
+						}
+
+						const JSONObject* pBaseColorTexture = json::GetObjectFromObject(table, *pPBRMetallicRoughness, "baseColorTexture");
+						if (pBaseColorTexture != NULL)
+						{
+							material.pbrMetallicRoughness.baseColorTexture.index = json::GetIntFromObject(table, *pBaseColorTexture, "index");
+							material.pbrMetallicRoughness.baseColorTexture.texCoord = json::GetIntFromObject(table, *pBaseColorTexture, "texCoord");
+						}
+
+						const JSONObject* pMetallicRoughnessTexture = json::GetObjectFromObject(table, *pPBRMetallicRoughness, "metallicRoughnessTexture");
+						if (pMetallicRoughnessTexture != NULL)
+						{
+							material.pbrMetallicRoughness.metallicRoughnessTexture.index = json::GetIntFromObject(table, *pMetallicRoughnessTexture, "index");
+							material.pbrMetallicRoughness.metallicRoughnessTexture.texCoord = json::GetIntFromObject(table, *pMetallicRoughnessTexture, "texCoord");
+						}
+
+					}
+
+					const JSONObject* pNormalTexture = json::GetObjectFromObject(table, *pMaterial, "normalTexture");
+					if (pNormalTexture != NULL)
+					{
+						material.normalTexture.index = json::GetIntFromObject(table, *pNormalTexture, "index");
+						material.normalTexture.texCoord = json::GetIntFromObject(table, *pNormalTexture, "texCoord");
+						material.normalTexture.scale = json::GetFloatFromObject(table, *pNormalTexture, "scale");
+					}
+					const JSONObject* pOcclusionTexture = json::GetObjectFromObject(table, *pMaterial, "occlusionTexture");
+					if (pOcclusionTexture != NULL)
+					{
+						material.occlusionTexture.index = json::GetIntFromObject(table, *pOcclusionTexture, "index");
+						material.occlusionTexture.texCoord = json::GetIntFromObject(table, *pOcclusionTexture, "texCoord");
+						material.occlusionTexture.strength = json::GetFloatFromObject(table, *pOcclusionTexture, "strength");
+					}
+					const JSONObject* pEmissiveTexture = json::GetObjectFromObject(table, *pMaterial, "emissiveTexture");
+					if (pEmissiveTexture != NULL)
+					{
+						material.emissiveTexture.index = json::GetIntFromObject(table, *pEmissiveTexture, "index");
+						material.emissiveTexture.texCoord = json::GetIntFromObject(table, *pEmissiveTexture, "texCoord");
+					}
+					
+					const char* pAlphaMode = json::GetStringFromObject(table, *pMaterial, "alphaMode");
+					if (pAlphaMode != NULL)
+					{
+						if (pAlphaMode[0] == 'M') material.alphaMode = GLTF_ALPHA_MASK;
+						else if (pAlphaMode[0] == 'B') material.alphaMode = GLTF_ALPHA_BLEND;
+					}
+
+					gltf.materials.push(material);
+				}
+			}
+
+			// Meshes
+			const JSONArray* pMeshes = json::GetArrayFromObject(table, *pRoot, "meshes");
+			if (pMeshes != NULL)
+			{
+				for (uint32_t index = 0; index < json::GetArrayElementCount(*pMeshes); ++index)
+				{
+					const JSONObject* pMesh = json::GetObjectFromArray(table, *pMeshes, index);
+					if (pMesh == NULL) continue;
+					if (!gltf.meshes.isInitialized()) gltf.meshes.setAllocator(&allocator);
+					GLTFMesh& mesh = *gltf.meshes.alloc();
+
+					LU_NEW(&mesh) GLTFMesh;
+
+					const JSONArray* pPrimitives = json::GetArrayFromObject(table, *pMesh, "primitives");
+					if (pPrimitives != NULL)
+					{
+						for (uint32_t i = 0; i < json::GetArrayElementCount(*pPrimitives); ++i)
+						{
+							const JSONObject* pPrimitive = json::GetObjectFromArray(table, *pPrimitives, i);
+							if (pPrimitive == NULL) continue;
+							if (!mesh.primitive.isInitialized()) mesh.primitive.setAllocator(&allocator);
+							GLTFPrimitive& primitive = *mesh.primitive.alloc();
+
+							LU_NEW(&primitive) GLTFPrimitive;
+
+							if (!primitive.attributes.isInitialized()) primitive.attributes.setAllocator(&allocator);
+
+							const JSONObject* pAttributes = json::GetObjectFromObject(table, *pPrimitive, "attributes");
+							for (uint32_t j = 0, l = pAttributes->keys.getSize(); j < l; ++j)
+							{
+								const JSONKey& key = pAttributes->keys.constAt(j);
+								GLTFAttribSemantic& attrib = *primitive.attributes.alloc();
+								if (strcmp(key.key, "NORMAL") == 0) attrib = GLTF_ATTRIB_NORMAL;
+								else if (strcmp(key.key, "TANGENT") == 0) attrib = GLTF_ATTRIB_TANGENT;
+								else if (strcmp(key.key, "TEXCOORD_0") == 0) attrib = GLTF_ATTRIB_TEXCOORD_0;
+								else if (strcmp(key.key, "TEXCOORD_1") == 0) attrib = GLTF_ATTRIB_TEXCOORD_1;
+								else if (strcmp(key.key, "COLORS_0") == 0) attrib = GLTF_ATTRIB_COLORS_0;
+								else if (strcmp(key.key, "JOINTS_0") == 0) attrib = GLTF_ATTRIB_JOINTS_0;
+								else if (strcmp(key.key, "WEIGHTS_0") == 0) attrib = GLTF_ATTRIB_WEIGHTS_0;
+							}
+							primitive.indices = json::GetIntFromObject(table, *pPrimitive, "indices");
+							primitive.material = json::GetIntFromObject(table, *pPrimitive, "material");
+							int32_t mode = json::GetIntFromObject(table, *pPrimitive, "mode");
+							if (mode == 0) primitive.mode = GLTF_PRIMITIVE_POINTS;
+							else if (mode == 1) primitive.mode = GLTF_PRIMITIVE_LINES;
+							else if (mode == 2) primitive.mode = GLTF_PRIMITIVE_LINE_LOOP;
+							else if (mode == 3) primitive.mode = GLTF_PRIMITIVE_LINE_STRIP;
+							else if (mode == 4) primitive.mode = GLTF_PRIMITIVE_TRIANGLES;
+							else if (mode == 5) primitive.mode = GLTF_PRIMITIVE_TRIANGLE_STRIP;
+							else if (mode == 6) primitive.mode = GLTF_PRIMITIVE_TRIANGLE_FAN;
+
+							const JSONArray* pTargets = json::GetArrayFromObject(table, *pPrimitive, "targets");
+							if (pTargets == NULL) continue;
+							if (!primitive.targets.isInitialized()) primitive.targets.setAllocator(&allocator);
+
+							for (uint32_t j = 0; j < json::GetArrayElementCount(*pTargets); ++j)
+							{
+								const JSONObject* pTarget = json::GetObjectFromArray(table, *pTargets, j);
+								if (pTarget == NULL) continue;
+								GLTFPrimitiveTarget& target = *primitive.targets.alloc();
+								for (uint32_t x = 0, l = pTarget->keys.getSize(); x < l; ++x)
+								{
+									const JSONKey& key = pTarget->keys.constAt(x);
+									if (strcmp(key.key, "POSITION")) target.targets[target.length++] = GLTF_ATTRIB_POSITION;
+									else if (strcmp(key.key, "NORMAL")) target.targets[target.length++] = GLTF_ATTRIB_NORMAL;
+									else if (strcmp(key.key, "TANGENT")) target.targets[target.length++] = GLTF_ATTRIB_TANGENT;
+								}
+							}
+						}
+					}
+
+					const JSONArray* pWeights = json::GetArrayFromObject(table, *pMesh, "weights");
+					if (pWeights != NULL)
+					{
+						if (!mesh.weights.isInitialized()) mesh.weights.setAllocator(&allocator);
+						for (uint32_t i = 0; i < json::GetArrayElementCount(*pWeights); ++i)
+						{
+							mesh.weights.push(json::GetFloatFromArray(table, *pWeights, i));
+						}
+					}
+				}
+			}
+
 			return true;
 		}
 	}
